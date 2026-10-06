@@ -1,0 +1,13 @@
+{
+  "ver": "2.0.4",
+  "importer": "animation-clip",
+  "imported": true,
+  "uuid": "7f06c0cf-849f-44d1-a081-ba555e5c5086",
+  "files": [
+    ".bin"
+  ],
+  "subMetas": {},
+  "userData": {
+    "name": "HeroStage03Idle"
+  }
+}

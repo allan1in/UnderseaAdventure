@@ -1,0 +1,13 @@
+{
+  "ver": "2.0.4",
+  "importer": "animation-clip",
+  "imported": true,
+  "uuid": "c185d6d7-9e7a-4c16-86d8-ad3c81f5c29e",
+  "files": [
+    ".bin"
+  ],
+  "subMetas": {},
+  "userData": {
+    "name": "HeroStage04Walk"
+  }
+}

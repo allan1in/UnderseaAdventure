@@ -1,0 +1,306 @@
+{
+  "originalAtlas": "player attack 2.plist",
+  "note": "Reference region index; not a Cocos SpriteAtlas asset.",
+  "frames": [
+    {
+      "id": "67e263c0-5dd3-4f67-b65f-c23f0aeb03ec",
+      "name": "00000",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "c61bfbb7-5fee-4fb8-839e-215754086ab6",
+      "name": "00001",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "35171b01-9226-441b-a882-0416e33b7a7e",
+      "name": "00002",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "babd1954-122d-4820-943b-43bc60dca5af",
+      "name": "00003",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "db52befc-58df-4442-ac1c-561c3cf126ce",
+      "name": "00004",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "1549a1db-3aff-43b0-90e1-d83e8b971937",
+      "name": "00005",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "93436cbb-cbdd-4dc9-805f-dd196522bf88",
+      "name": "00006",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        600,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "b5dd0f26-8366-41ee-a705-383cb98dbfc3",
+      "name": "00007",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        600,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "a068c5e3-1f8e-4829-bf47-63dd502cc993",
+      "name": "00008",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        600,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "f7bf1ada-a6a7-43c1-bcaa-7397ccd846c8",
+      "name": "00009",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        900,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "f052c843-81fc-4c85-85bb-32c4647b6b3e",
+      "name": "00010",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        900,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "85b1a113-76a4-4491-91b2-5622d75592bd",
+      "name": "00011",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        900,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "de16d335-5b6a-4580-9666-a11c0fc794a5",
+      "name": "00012",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        1200,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "257cd57d-0482-4440-bcb4-eeaad04ccad5",
+      "name": "00013",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        1200,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "36c374e4-84c4-4472-9bdb-947d77651365",
+      "name": "00014",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        1200,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    }
+  ]
+}

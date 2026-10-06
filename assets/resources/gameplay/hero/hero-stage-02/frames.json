@@ -1,0 +1,1146 @@
+{
+  "originalAtlas": "player 2.plist",
+  "note": "Reference region index; not a Cocos SpriteAtlas asset.",
+  "frames": [
+    {
+      "id": "2dc07aa9-927b-4786-9694-34a2ffbb7cb8",
+      "name": "death10",
+      "texture": "texture-01.png",
+      "rect": [
+        1104,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "9f80abae-8e05-4ebe-91e8-2d2e31c23af2",
+      "name": "death11",
+      "texture": "texture-01.png",
+      "rect": [
+        1288,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "0dbdd6d3-11bb-4df5-8964-c4728f849828",
+      "name": "death12",
+      "texture": "texture-01.png",
+      "rect": [
+        1472,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "77009dc5-5173-4431-8c46-5f1f03a9e83e",
+      "name": "death4",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "02a1b06c-7e03-415d-a5a6-5f7e6f4affd7",
+      "name": "death5",
+      "texture": "texture-01.png",
+      "rect": [
+        184,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "f80a79b6-5bdd-4218-95af-8ca5e1fede7d",
+      "name": "death6",
+      "texture": "texture-01.png",
+      "rect": [
+        368,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "0dcde514-af4a-4803-8265-2f17ae9c67b2",
+      "name": "death7",
+      "texture": "texture-01.png",
+      "rect": [
+        552,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "468215b4-4b74-4117-84d2-4d532ea9b92d",
+      "name": "death8",
+      "texture": "texture-01.png",
+      "rect": [
+        736,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "43c22265-d07b-444c-a2b1-a8cf15cbdfea",
+      "name": "death9",
+      "texture": "texture-01.png",
+      "rect": [
+        920,
+        0,
+        184,
+        168
+      ],
+      "original": [
+        184,
+        168
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "1467e8f0-60d0-4920-8435-fe054852f527",
+      "name": "idle1",
+      "texture": "texture-01.png",
+      "rect": [
+        1656,
+        0,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "91751cec-4ed6-4765-83a3-fa05e825b931",
+      "name": "idle10",
+      "texture": "texture-01.png",
+      "rect": [
+        1148,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "7999b7b1-5f24-4f80-b049-1fdc79059648",
+      "name": "idle2",
+      "texture": "texture-01.png",
+      "rect": [
+        1820,
+        0,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "df9b741c-5f50-40a8-b33d-4c62eb75bade",
+      "name": "idle3",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "58d89698-9cd9-4b0b-8c68-36d5487766a2",
+      "name": "idle4",
+      "texture": "texture-01.png",
+      "rect": [
+        164,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "4912c43d-d7d6-4d1f-9ae0-5ec4f1295f49",
+      "name": "idle5",
+      "texture": "texture-01.png",
+      "rect": [
+        328,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "38661815-10bc-48e8-9f54-88c943715f66",
+      "name": "idle6",
+      "texture": "texture-01.png",
+      "rect": [
+        492,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "b41c9f11-fbe0-4ddb-9d9d-6ebbf99329d4",
+      "name": "idle7",
+      "texture": "texture-01.png",
+      "rect": [
+        656,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "311fb509-66aa-47fe-a268-95a8389f74ac",
+      "name": "idle8",
+      "texture": "texture-01.png",
+      "rect": [
+        820,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "e4f5c0af-37e0-4a33-8404-7b8fe53211d6",
+      "name": "idle9",
+      "texture": "texture-01.png",
+      "rect": [
+        984,
+        168,
+        164,
+        143
+      ],
+      "original": [
+        164,
+        143
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "030b27f0-6429-4f6c-8adb-1190a8549292",
+      "name": "move1",
+      "texture": "texture-01.png",
+      "rect": [
+        1312,
+        168,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "acd9fbbe-b717-4aac-b0c1-d5f1786e23ea",
+      "name": "move10",
+      "texture": "texture-01.png",
+      "rect": [
+        500,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "6e336427-0b03-4358-9c92-b0cda5cee19d",
+      "name": "move11",
+      "texture": "texture-01.png",
+      "rect": [
+        625,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "ae9991c9-e01d-4c59-893a-8ccce989ab96",
+      "name": "move12",
+      "texture": "texture-01.png",
+      "rect": [
+        750,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "cd3d4317-6aea-4624-8c85-66455b116cef",
+      "name": "move13",
+      "texture": "texture-01.png",
+      "rect": [
+        875,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "67f9900a-ddef-40ac-b4e1-06e0bd0bec19",
+      "name": "move14",
+      "texture": "texture-01.png",
+      "rect": [
+        1000,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "caf9dddb-6a8c-459c-a2d7-60bb1a1849ca",
+      "name": "move2",
+      "texture": "texture-01.png",
+      "rect": [
+        1437,
+        168,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "90bb767c-33aa-4d34-b9c7-e2fc193b7fc9",
+      "name": "move3",
+      "texture": "texture-01.png",
+      "rect": [
+        1562,
+        168,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "05d49e25-fc33-4354-960c-272f281f6f74",
+      "name": "move4",
+      "texture": "texture-01.png",
+      "rect": [
+        1687,
+        168,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "7e600f90-dd74-46ef-a061-ea56c8228fae",
+      "name": "move5",
+      "texture": "texture-01.png",
+      "rect": [
+        1812,
+        168,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "58e55a02-da38-4f8c-b91c-ae752a0e05ce",
+      "name": "move6",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "34f2f21b-664d-4fed-8ff5-7f080718b133",
+      "name": "move7",
+      "texture": "texture-01.png",
+      "rect": [
+        125,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "4b8d1470-cc31-49bf-a549-206bf4146559",
+      "name": "move8",
+      "texture": "texture-01.png",
+      "rect": [
+        250,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "a2563cd8-37cf-4294-988a-479fda46c75b",
+      "name": "move9",
+      "texture": "texture-01.png",
+      "rect": [
+        375,
+        313,
+        125,
+        145
+      ],
+      "original": [
+        125,
+        145
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "be2270a9-34ba-4d01-a594-285291ecdbcc",
+      "name": "skill1_1",
+      "texture": "texture-01.png",
+      "rect": [
+        1125,
+        313,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "11fe9f2f-5a8d-4903-861a-f55fb15827c9",
+      "name": "skill1_10",
+      "texture": "texture-01.png",
+      "rect": [
+        990,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "9276199e-93c2-4a76-8dd2-938bd129815d",
+      "name": "skill1_11",
+      "texture": "texture-01.png",
+      "rect": [
+        1188,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "66a702f1-478e-4a41-942c-4a1479fcce07",
+      "name": "skill1_12",
+      "texture": "texture-01.png",
+      "rect": [
+        1386,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "6775f2e6-3e07-4373-9112-59d511553724",
+      "name": "skill1_13",
+      "texture": "texture-01.png",
+      "rect": [
+        1584,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "fdf2770b-33b0-4635-a76e-9bf1812edc75",
+      "name": "skill1_14",
+      "texture": "texture-01.png",
+      "rect": [
+        1782,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "5cf69c6e-28a7-4ff6-b2a1-cfb5458eb5a1",
+      "name": "skill1_15",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "641613f0-869e-4f37-b43f-dc37e2760977",
+      "name": "skill1_16",
+      "texture": "texture-01.png",
+      "rect": [
+        198,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "ad4f3567-491f-494c-885c-7a0770936d9b",
+      "name": "skill1_17",
+      "texture": "texture-01.png",
+      "rect": [
+        396,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "317d5b37-0238-4501-ac7f-8378178d8e55",
+      "name": "skill1_18",
+      "texture": "texture-01.png",
+      "rect": [
+        594,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "6db83da8-fc71-413f-9765-0e24eef295f5",
+      "name": "skill1_19",
+      "texture": "texture-01.png",
+      "rect": [
+        792,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "cc9c740a-a6b5-4a34-83d2-c7e8858576d6",
+      "name": "skill1_2",
+      "texture": "texture-01.png",
+      "rect": [
+        1323,
+        313,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "357ecddd-9817-4c70-bfc0-e046d29ca494",
+      "name": "skill1_20",
+      "texture": "texture-01.png",
+      "rect": [
+        990,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "42716de0-4a34-41d7-bd8a-55d17d7afb1a",
+      "name": "skill1_21",
+      "texture": "texture-01.png",
+      "rect": [
+        1188,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "74c2d09f-7fa3-42bb-92e9-1936ae56b210",
+      "name": "skill1_22",
+      "texture": "texture-01.png",
+      "rect": [
+        1386,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "3e54117c-4714-4571-9be9-c48ce3654a93",
+      "name": "skill1_23",
+      "texture": "texture-01.png",
+      "rect": [
+        1584,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "1cb504c3-63cc-4d69-bc08-658bbc8807ed",
+      "name": "skill1_24",
+      "texture": "texture-01.png",
+      "rect": [
+        1782,
+        617,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "d4a8269e-9ae5-46f9-98ad-02ea206812fa",
+      "name": "skill1_3",
+      "texture": "texture-01.png",
+      "rect": [
+        1521,
+        313,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "d75e05a1-772b-4b98-85cd-31058ba9d9b8",
+      "name": "skill1_4",
+      "texture": "texture-01.png",
+      "rect": [
+        1719,
+        313,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "0597edb6-b0c9-4f86-8e7a-93392edecf57",
+      "name": "skill1_5",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "dd8ae849-55cc-4bb5-9106-54c60c6e2cfa",
+      "name": "skill1_6",
+      "texture": "texture-01.png",
+      "rect": [
+        198,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "184837c9-0960-41bb-9074-8cd16c295853",
+      "name": "skill1_7",
+      "texture": "texture-01.png",
+      "rect": [
+        396,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "86ef0309-b7e5-441f-bd84-7c9a84dda873",
+      "name": "skill1_8",
+      "texture": "texture-01.png",
+      "rect": [
+        594,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "de7f9315-c437-4e91-9fce-7e4c113df6e9",
+      "name": "skill1_9",
+      "texture": "texture-01.png",
+      "rect": [
+        792,
+        465,
+        198,
+        152
+      ],
+      "original": [
+        198,
+        152
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    }
+  ]
+}

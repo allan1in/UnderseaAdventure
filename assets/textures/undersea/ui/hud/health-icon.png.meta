@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "9970a13d-ab67-4560-8192-a6cd49f77592",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "9970a13d-ab67-4560-8192-a6cd49f77592@6c48a",
+      "displayName": "health-icon",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "9970a13d-ab67-4560-8192-a6cd49f77592",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "9970a13d-ab67-4560-8192-a6cd49f77592@f9941",
+      "displayName": "health-icon",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 10,
+        "trimY": 10,
+        "width": 317,
+        "height": 280,
+        "rawWidth": 337,
+        "rawHeight": 300,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": false,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "9970a13d-ab67-4560-8192-a6cd49f77592@6c48a",
+        "atlasUuid": "",
+        "trimType": "custom",
+        "vertices": {
+          "rawPosition": [
+            -158.5,
+            -140,
+            0,
+            158.5,
+            -140,
+            0,
+            -158.5,
+            140,
+            0,
+            158.5,
+            140,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            10,
+            290,
+            327,
+            290,
+            10,
+            10,
+            327,
+            10
+          ],
+          "nuv": [
+            0.02967359050445104,
+            0.03333333333333333,
+            0.9703264094955489,
+            0.03333333333333333,
+            0.02967359050445104,
+            0.9666666666666667,
+            0.9703264094955489,
+            0.9666666666666667
+          ],
+          "minPos": [
+            -158.5,
+            -140,
+            0
+          ],
+          "maxPos": [
+            158.5,
+            140,
+            0
+          ]
+        }
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": false,
+    "hasAlpha": true,
+    "redirect": "9970a13d-ab67-4560-8192-a6cd49f77592@6c48a"
+  }
+}

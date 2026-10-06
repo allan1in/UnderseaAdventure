@@ -1,0 +1,41 @@
+
+ANIboss.png
+size: 2048,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bs_bg
+  rotate: false
+  xy: 1004, 177
+  size: 760, 234
+  orig: 760, 234
+  offset: 0, 0
+  index: -1
+bs_diandian
+  rotate: false
+  xy: 2, 164
+  size: 1000, 247
+  orig: 1000, 247
+  offset: 0, 0
+  index: -1
+bs_jt04
+  rotate: true
+  xy: 1656, 2
+  size: 149, 295
+  orig: 149, 295
+  offset: 0, 0
+  index: -1
+bs_tiao01
+  rotate: false
+  xy: 1004, 59
+  size: 650, 116
+  orig: 652, 118
+  offset: 1, 1
+  index: -1
+ycll_wenzi
+  rotate: true
+  xy: 1766, 153
+  size: 258, 165
+  orig: 258, 165
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,54 @@
+hero-stage-01.png
+size: 2048,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+body
+  rotate: false
+  xy: 2,2
+  size: 537,440
+  orig: 537,440
+  offset: 0,0
+  index: -1
+near-thigh
+  rotate: false
+  xy: 543,2
+  size: 191,350
+  orig: 191,350
+  offset: 0,0
+  index: -1
+far-thigh
+  rotate: false
+  xy: 738,2
+  size: 191,351
+  orig: 191,351
+  offset: 0,0
+  index: -1
+near-shin
+  rotate: false
+  xy: 2,444
+  size: 170,350
+  orig: 170,350
+  offset: 0,0
+  index: -1
+far-shin
+  rotate: false
+  xy: 176,444
+  size: 169,352
+  orig: 169,352
+  offset: 0,0
+  index: -1
+near-foot
+  rotate: false
+  xy: 349,444
+  size: 294,212
+  orig: 294,212
+  offset: 0,0
+  index: -1
+far-foot
+  rotate: false
+  xy: 647,444
+  size: 288,209
+  orig: 288,209
+  offset: 0,0
+  index: -1

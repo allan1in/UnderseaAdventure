@@ -1,0 +1,216 @@
+
+MX_tb_cangbaolong.png
+size: 678, 94
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+MX_tb_cangbaolong_chi1
+  rotate: true
+  xy: 79, 16
+  size: 76, 27
+  orig: 76, 27
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_chi2
+  rotate: true
+  xy: 576, 2
+  size: 42, 37
+  orig: 42, 37
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_dabi1
+  rotate: false
+  xy: 548, 3
+  size: 26, 35
+  orig: 28, 37
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_dabi3
+  rotate: true
+  xy: 650, 57
+  size: 35, 26
+  orig: 35, 26
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_datui1
+  rotate: true
+  xy: 290, 2
+  size: 28, 39
+  orig: 28, 39
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_dauit2
+  rotate: true
+  xy: 650, 23
+  size: 32, 26
+  orig: 32, 26
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_er1
+  rotate: true
+  xy: 502, 3
+  size: 33, 44
+  orig: 33, 44
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_er2
+  rotate: true
+  xy: 402, 3
+  size: 27, 49
+  orig: 27, 49
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_eve
+  rotate: true
+  xy: 79, 2
+  size: 12, 50
+  orig: 15, 53
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_jb
+  rotate: true
+  xy: 615, 7
+  size: 39, 33
+  orig: 41, 36
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_jiao1
+  rotate: true
+  xy: 131, 2
+  size: 23, 12
+  orig: 26, 14
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_jiao2
+  rotate: false
+  xy: 2, 2
+  size: 27, 11
+  orig: 30, 14
+  offset: 2, 1
+  index: -1
+MX_tb_cangbaolong_ling
+  rotate: false
+  xy: 626, 54
+  size: 16, 38
+  orig: 20, 41
+  offset: 2, 2
+  index: -1
+MX_tb_cangbaolong_mao1
+  rotate: true
+  xy: 145, 3
+  size: 22, 17
+  orig: 22, 17
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_mao2
+  rotate: true
+  xy: 331, 2
+  size: 28, 36
+  orig: 28, 36
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_mei1
+  rotate: false
+  xy: 606, 48
+  size: 18, 44
+  orig: 21, 46
+  offset: 2, 1
+  index: -1
+MX_tb_cangbaolong_mei2
+  rotate: true
+  xy: 164, 5
+  size: 20, 30
+  orig: 23, 32
+  offset: 2, 1
+  index: -1
+MX_tb_cangbaolong_nu1
+  rotate: true
+  xy: 233, 2
+  size: 26, 55
+  orig: 27, 56
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_nu2
+  rotate: false
+  xy: 205, 30
+  size: 29, 62
+  orig: 32, 70
+  offset: 2, 1
+  index: -1
+MX_tb_cangbaolong_nu3
+  rotate: true
+  xy: 567, 46
+  size: 46, 37
+  orig: 47, 38
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_shadow
+  rotate: false
+  xy: 236, 32
+  size: 244, 60
+  orig: 279, 122
+  offset: 21, 30
+  index: -1
+MX_tb_cangbaolong_shenti
+  rotate: false
+  xy: 108, 27
+  size: 95, 65
+  orig: 95, 65
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_shou1
+  rotate: false
+  xy: 650, 6
+  size: 12, 15
+  orig: 15, 17
+  offset: 2, 1
+  index: -1
+MX_tb_cangbaolong_shou2
+  rotate: false
+  xy: 453, 3
+  size: 47, 27
+  orig: 49, 30
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_tou
+  rotate: true
+  xy: 2, 15
+  size: 77, 75
+  orig: 79, 78
+  offset: 1, 1
+  index: -1
+MX_tb_cangbaolong_tui1
+  rotate: true
+  xy: 369, 2
+  size: 28, 31
+  orig: 28, 31
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_x1
+  rotate: true
+  xy: 499, 38
+  size: 54, 32
+  orig: 54, 32
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_x2
+  rotate: false
+  xy: 196, 6
+  size: 35, 19
+  orig: 35, 19
+  offset: 0, 0
+  index: -1
+MX_tb_cangbaolong_yan
+  rotate: true
+  xy: 533, 40
+  size: 52, 32
+  orig: 54, 35
+  offset: 1, 2
+  index: -1
+MX_tb_cangbaolong_zui
+  rotate: false
+  xy: 482, 34
+  size: 15, 58
+  orig: 17, 61
+  offset: 1, 1
+  index: -1

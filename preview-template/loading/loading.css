@@ -1,0 +1,48 @@
+#splash.undersea-loading {
+  position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; visibility: visible;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  color: #efffff; font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: radial-gradient(ellipse at 50% 15%, #23a4b0 0, #08758d 30%, #034662 66%, #032b45 100%) !important;
+  transition: opacity .25s ease; text-align: center; box-sizing: border-box;
+}
+.undersea-loading * { box-sizing: border-box; }
+.undersea-loading.loading-complete { opacity: 0; pointer-events: none; }
+.loading-content { position: relative; z-index: 2; width: min(560px, 88%); padding: 20px 0; }
+.loading-logo { display: block; width: clamp(160px, 26vw, 265px); height: auto; margin: -20px auto -14px; filter: drop-shadow(0 8px 12px #00283d70); }
+.loading-party { position: relative; height: 188px; width: min(460px, 100%); margin: 0 auto 2px; }
+.loading-hero { position: absolute; width: 185px; left: 50%; bottom: 0; transform: translateX(-50%); z-index: 3; filter: drop-shadow(0 8px 8px #00324b80); }
+.hero-glow { position: absolute; width: 230px; height: 90px; border-radius: 50%; left: 50%; bottom: 8px; transform: translateX(-50%); background: radial-gradient(ellipse, #8dfff980, #19b7d51a 65%, transparent 70%); }
+.companion { position: absolute; width: 114px; bottom: 18px; filter: drop-shadow(0 7px 8px #00324b80); animation: companion-float 3.6s ease-in-out infinite; }
+.seahorse { left: 0; bottom: 28px; width: 108px; }
+.turtle { left: 18%; bottom: -2px; animation-delay: -.9s; z-index: 4; }
+.jellyfish { right: 15%; bottom: 9px; animation-delay: -1.6s; z-index: 4; }
+.shark { right: -2%; bottom: 31px; animation-delay: -2.3s; width: 126px; }
+.loading-meter { width: min(390px, 91%); margin: 24px auto 0; padding: 4px; border-radius: 30px; background: #003552c9; border: 1px solid #93f5e880; box-shadow: 0 4px 12px #001f3950, inset 0 1px 4px #001f39; }
+#splash.undersea-loading .progress-bar { position: relative; display: block; margin: 0; width: 100%; height: 14px; border: none; border-radius: 20px; background: #032f47; overflow: hidden; box-shadow: none; }
+#splash.undersea-loading .progress-bar span { display: block; height: 100%; max-width: 100%; border-radius: 20px; background: linear-gradient(90deg, #0fd4d2, #6ffff0 70%, #dbffe4); box-shadow: 0 0 12px #67ffee; transition: width .16s linear; position: relative; }
+#splash.undersea-loading .progress-bar span::after { content: none; animation: none; }
+.loading-status { width: min(380px, 87%); display: flex; justify-content: space-between; gap: 10px; margin: 13px auto 0; font-size: 13px; color: #bbf5f4; min-height: 20px; }
+.ocean-rays { position: absolute; inset: -30% -10% 0; transform: rotate(-12deg); background: repeating-linear-gradient(90deg, transparent 0 9%, #9effee0d 11%, transparent 18% 27%); mask-image: linear-gradient(#000, transparent); pointer-events: none; }
+.ocean-floor { position: absolute; width: 140%; height: 120px; bottom: -85px; left: -20%; border-radius: 50%; background: #08758450; box-shadow: 0 -20px 0 20px #08677930; }
+.ocean-bubbles { position: absolute; inset: 0; pointer-events: none; }
+.ocean-bubbles i { position: absolute; bottom: -50px; border: 1px solid #b9ffff66; box-shadow: inset 2px 2px 5px #caffff38; border-radius: 50%; width: 20px; height: 20px; animation: bubble-rise 10s linear infinite; }
+.ocean-bubbles i:nth-child(1) { left: 9%; animation-delay: -3s; }
+.ocean-bubbles i:nth-child(2) { left: 24%; width: 11px; height: 11px; animation-delay: -8s; }
+.ocean-bubbles i:nth-child(3) { left: 38%; animation-delay: -5s; animation-duration: 13s; }
+.ocean-bubbles i:nth-child(4) { left: 58%; width: 9px; height: 9px; animation-delay: -2s; }
+.ocean-bubbles i:nth-child(5) { left: 73%; width: 32px; height: 32px; animation-delay: -7s; animation-duration: 14s; }
+.ocean-bubbles i:nth-child(6) { left: 88%; animation-delay: -1s; }
+.ocean-bubbles i:nth-child(7) { left: 16%; width: 8px; height: 8px; animation-delay: -6s; }
+.ocean-bubbles i:nth-child(8) { left: 94%; width: 12px; height: 12px; animation-delay: -9s; }
+@keyframes companion-float { 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes bubble-rise { to { transform: translate(25px, -105vh); opacity: 0; } }
+@media (max-height: 560px) {
+  .loading-logo { width: 160px; margin: -14px auto -22px; }
+  .loading-party { height: 132px; max-width: 355px; }
+  .loading-hero { width: 138px; } .companion { width: 88px; } .shark { width: 96px; }
+}
+@media (max-width: 420px) {
+  .loading-party { height: 164px; } .loading-hero { width: 150px; }
+  .companion { width: 85px; } .shark { width: 96px; } .seahorse { left: -5%; } .turtle { left: 10%; } .jellyfish { right: 9%; } .shark { right: -8%; }
+}
+@media (prefers-reduced-motion: reduce) { .companion, .ocean-bubbles i { animation: none; } }

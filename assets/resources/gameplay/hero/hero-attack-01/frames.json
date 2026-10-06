@@ -1,0 +1,166 @@
+{
+  "originalAtlas": "player attack 1.plist",
+  "note": "Reference region index; not a Cocos SpriteAtlas asset.",
+  "frames": [
+    {
+      "id": "18dd53de-8f0d-434b-a116-ebc1a6c5f93b",
+      "name": "00001",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "654e975e-1f06-40cd-a676-89aa7aa6b194",
+      "name": "00002",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "028c5c8c-3199-47ca-9f57-0847cd08715e",
+      "name": "00003",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        0,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "edd8597a-19b9-4828-9da3-91146883035d",
+      "name": "00004",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "de78239e-fa4e-4894-ac4f-a37265337f8c",
+      "name": "00005",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "5e30d6bd-c8cc-4c81-8d5d-4ae6edbbe301",
+      "name": "00006",
+      "texture": "texture-01.png",
+      "rect": [
+        600,
+        300,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "8c0ed820-10e8-492d-a94c-b5e59f4e0680",
+      "name": "00007",
+      "texture": "texture-01.png",
+      "rect": [
+        0,
+        600,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    },
+    {
+      "id": "ccbc3aa1-a321-4495-b7aa-72d307df6829",
+      "name": "00008",
+      "texture": "texture-01.png",
+      "rect": [
+        300,
+        600,
+        300,
+        300
+      ],
+      "original": [
+        300,
+        300
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rotated": false
+    }
+  ]
+}

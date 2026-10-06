@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Cocos Creator | <%= projectName %></title>
+
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="full-screen" content="yes"/>
+    <meta name="screen-orientation" content="portrait"/>
+    <meta name="x5-fullscreen" content="true"/>
+    <meta name="360-fullscreen" content="true"/>
+
+    <meta name="renderer" content="webkit"/>
+    <meta name="force-rendering" content="webkit"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+    <link rel="stylesheet" type="text/css" href="<%= cssUrl %>"/>
+    <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="./loading/loading.css">
+</head>
+  <body>
+    <h1 class="header"><%= projectName %></h1>
+
+    <div id="GameDiv" cc_exact_fit_screen="false" style="width: <%= previewWidth %>px; height: <%= previewHeight %>px;">
+      <div id="Cocos3dGameContainer">
+        <canvas id="GameCanvas" width="<%= previewWidth %>" height="<%= previewHeight %>" tabindex="99"></canvas>
+      </div>
+    </div>
+    <p class="footer">
+      Created with <a href="https://www.cocos.com/products" title="Cocos Creator">Cocos Creator</a>
+    </p>
+    <div id="splash" class="undersea-loading" role="status" aria-label="正在加载海底冒险">
+  <div class="ocean-rays" aria-hidden="true"></div>
+  <div class="ocean-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <main class="loading-content">
+    <img class="loading-logo" src="./loading/logo.png" alt="UNDERSEA HEROES" fetchpriority="high">
+    <div class="loading-party" aria-hidden="true">
+      <img class="companion seahorse" src="./loading/seahorse.png" alt="">
+      <img class="companion turtle" src="./loading/turtle.png" alt="">
+      <div class="hero-glow"></div><img class="loading-hero" src="./loading/hero.png" alt="">
+      <img class="companion jellyfish" src="./loading/jellyfish.png" alt="">
+      <img class="companion shark" src="./loading/shark.png" alt="">
+    </div>
+    <div class="loading-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="游戏加载进度">
+      <div class="progress-bar"><span style="width:0%"></span></div>
+    </div>
+    <p class="loading-status"><span id="loading-message">正在准备海底世界…</span><span id="loading-percent"></span></p>
+  </main>
+  <div class="ocean-floor" aria-hidden="true"></div>
+</div>
+
+<%- include(cocosTemplate, {}) %>
+<script src="./loading/loading.js"></script>
+  </body>
+</html>
