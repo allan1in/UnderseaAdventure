@@ -29,10 +29,15 @@ const all = filesUnder(buildDir).sort();
 const scripts = all.filter(name => name.endsWith('.js') && !name.startsWith('loading/') && !['src/polyfills.bundle.js', 'src/system.bundle.js'].includes(name));
 const binary = all.filter(name => !['index.html', 'style.css', 'favicon.svg', 'src/import-map.json'].includes(name) && !name.endsWith('.map') && (!name.endsWith('.js') || /^assets\/[^/]+\/index/.test(name)));
 const payload = Object.fromEntries(binary.map(name => [name, fs.readFileSync(path.join(buildDir, name)).toString('base64')]));
+const webpKeys = binary.filter(name => {
+    const bytes = fs.readFileSync(path.join(buildDir, name));
+    return bytes.subarray(0, 4).toString() === 'RIFF' && bytes.subarray(8, 12).toString() === 'WEBP';
+});
 
 const boot = String.raw`
 (function () {
   const payload = __PAYLOAD__;
+  const webpKeys = new Set(__WEBP_KEYS__);
   const base = new URL('.', location.href);
   const blobs = Object.create(null);
   const mime = {json:'application/json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',ogg:'audio/ogg',mp3:'audio/mpeg',wav:'audio/wav',wasm:'application/wasm',js:'text/javascript',svg:'image/svg+xml'};
@@ -53,7 +58,7 @@ const boot = String.raw`
       const raw = atob(payload[key]);
       const bytes = new Uint8Array(raw.length);
       for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
-      const type = mime[key.split('.').pop().toLowerCase()] || 'application/octet-stream';
+      const type = webpKeys.has(key) ? 'image/webp' : mime[key.split('.').pop().toLowerCase()] || 'application/octet-stream';
       blobs[key] = URL.createObjectURL(new Blob([bytes], { type }));
     }
     return blobs[key];
@@ -114,7 +119,7 @@ html = html.replace(/<img\b[^>]*>/gi, tag => tag.replace(/src="([^"]+)"/i, (attr
     return `src="data:image/png;base64,${payload[name]}"`;
 }));
 html = html.replace(/<script\b[\s\S]*?<\/script>/gi, '').replace(/<\/body>[\s\S]*$/i, '');
-html += `<script>${escapeScript(boot.replace('__PAYLOAD__', JSON.stringify(payload)))}</script>`;
+html += `<script>${escapeScript(boot.replace('__PAYLOAD__', JSON.stringify(payload)).replace('__WEBP_KEYS__', JSON.stringify(webpKeys)))}</script>`;
 html += `<script>${escapeScript(fs.readFileSync(path.join(buildDir, 'src/polyfills.bundle.js'), 'utf8'))}</script>`;
 html += `<script>${escapeScript(fs.readFileSync(path.join(buildDir, 'src/system.bundle.js'), 'utf8'))}</script>`;
 html += `<script type="systemjs-importmap">{"imports":{"cc":"./cocos-js/cc.js"}}</script>`;

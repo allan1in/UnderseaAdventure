@@ -4,7 +4,9 @@ const assert = require('assert/strict');
 const { pathToFileURL } = require('url');
 const { chromium } = require('C:/Users/LIN/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const project = path.resolve(__dirname, '..');
-const input = path.resolve(process.argv[2] || path.join(project, 'build/undersea-adventure-single.html'));
+const requested = process.argv[2] || path.join(project, 'build/undersea-adventure-single.html');
+const remote = /^https?:/.test(requested);
+const input = remote ? requested : path.resolve(requested);
 const out = path.join(project, 'build/verification');
 fs.mkdirSync(out, { recursive: true });
 (async () => {
@@ -14,9 +16,13 @@ fs.mkdirSync(out, { recursive: true });
     page.on('pageerror', e => errors.push(e.stack));
     page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     // Any HTTP dependency fails this standalone/offline check.
-    await page.route(/^https?:/, route => { external.push(route.request().url()); route.abort(); });
+    await page.route(/^https?:/, route => {
+        const url = route.request().url();
+        if (remote && new URL(url).origin === new URL(input).origin) return route.continue();
+        external.push(url); return route.abort();
+    });
     try {
-        await page.goto(pathToFileURL(input).href, { waitUntil: 'load', timeout: 120000 });
+        await page.goto(remote ? input : pathToFileURL(input).href, { waitUntil: 'load', timeout: 180000 });
         await page.evaluate(async () => { window.cc = await System.import('cc'); });
         await page.waitForFunction(() => window.cc?.director.getScene()?.getChildByName('Canvas')?.getChildByName('World')?.getChildByName('Hero'), { timeout: 120000 });
         await page.waitForTimeout(1500);
@@ -58,8 +64,8 @@ fs.mkdirSync(out, { recursive: true });
         assert(victory.complete && victory.paused && victory.normal && !victory.boss && victory.bubbles);
         await page.screenshot({ path: path.join(out, 'standalone-victory.png') });
         assert.deepEqual(external, []); assert.deepEqual(errors, []);
-        const report = { file: input, bytes: fs.statSync(input).size, initial, playing, boss, victory, external, errors };
-        fs.writeFileSync(path.join(out, 'standalone-report.json'), JSON.stringify(report, null, 2));
+        const report = { file: input, bytes: remote ? null : fs.statSync(input).size, initial, playing, boss, victory, external, errors };
+        fs.writeFileSync(path.join(out, remote ? 'vercel-report.json' : 'standalone-report.json'), JSON.stringify(report, null, 2));
         console.log(JSON.stringify(report, null, 2));
     } catch (e) { console.error(JSON.stringify({ errors, external })); await page.screenshot({ path: path.join(out, 'standalone-failure.png') }); throw e; }
     finally { await browser.close(); }
