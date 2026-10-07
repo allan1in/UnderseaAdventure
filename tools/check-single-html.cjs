@@ -13,6 +13,7 @@ fs.mkdirSync(out, { recursive: true });
     const browser = await chromium.launch({ channel: 'chrome', headless: true });
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     const errors = [], external = [];
+    let gamePage = page;
     page.on('pageerror', e => errors.push(e.stack));
     page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     // Any HTTP dependency fails this standalone/offline check.
@@ -22,11 +23,16 @@ fs.mkdirSync(out, { recursive: true });
         external.push(url); return route.abort();
     });
     try {
-        await page.goto(remote ? input : pathToFileURL(input).href, { waitUntil: 'load', timeout: 180000 });
-        await page.evaluate(async () => { window.cc = await System.import('cc'); });
-        await page.waitForFunction(() => window.cc?.director.getScene()?.getChildByName('Canvas')?.getChildByName('World')?.getChildByName('Hero'), { timeout: 120000 });
+        await page.goto(remote ? input : pathToFileURL(input).href, { waitUntil: 'domcontentloaded', timeout: 180000 });
+        if (await page.locator('#game').count()) {
+            await page.waitForFunction(() => /game-/.test(document.getElementById('game').src));
+            gamePage = await (await page.locator('#game').elementHandle()).contentFrame();
+            await gamePage.waitForFunction(() => !!window.System, null, {timeout:120000});
+        }
+        await gamePage.evaluate(async () => { window.cc = await System.import('cc'); });
+        await gamePage.waitForFunction(() => window.cc?.director.getScene()?.getChildByName('Canvas')?.getChildByName('World')?.getChildByName('Hero'), null, { timeout: 120000 });
         await page.waitForTimeout(1500);
-        const initial = await page.evaluate(() => {
+        const initial = await gamePage.evaluate(() => {
             const canvas = cc.director.getScene().getChildByName('Canvas'), world = canvas.getChildByName('World');
             const battle = world.getComponent('BossBattleSystem'), music = canvas.getComponent('MusicDirector');
             window.testGame = { canvas, world, battle, music, hero: world.getChildByName('Hero') };
@@ -36,10 +42,10 @@ fs.mkdirSync(out, { recursive: true });
         });
         assert.equal(initial.time, 0); assert.equal(initial.enemies, 0); assert(initial.sources.every(s => s.clip && s.loop && !s.playing)); assert(initial.loadingHidden);
         await page.screenshot({ path: path.join(out, 'standalone-start.png') });
-        const before = await page.evaluate(() => ({ x: testGame.hero.position.x, y: testGame.hero.position.y }));
+        const before = await gamePage.evaluate(() => ({ x: testGame.hero.position.x, y: testGame.hero.position.y }));
         await page.mouse.move(800, 490); await page.mouse.down(); await page.mouse.move(920, 460, { steps: 10 });
         await page.waitForTimeout(1800); await page.mouse.up();
-        const playing = await page.evaluate(() => {
+        const playing = await gamePage.evaluate(() => {
             const { hero, music, battle, world } = testGame;
             return { x: hero.position.x, y: hero.position.y, time: battle.runningTime,
                 enemies: world.children.filter(n => n.getComponent('EnemyController')).length,
@@ -48,18 +54,18 @@ fs.mkdirSync(out, { recursive: true });
         assert(Math.hypot(playing.x - before.x, playing.y - before.y) > 10); assert(playing.time > 0); assert(playing.music && playing.bubbles && !playing.boss);
         await page.screenshot({ path: path.join(out, 'standalone-playing.png') });
         // Shorten only this test instance's timer to exercise the production spawn path.
-        await page.evaluate(() => { testGame.battle.spawnAfter = 0; });
-        await page.waitForFunction(() => testGame.battle.bossNode && testGame.music.bossMusic.playing);
-        const boss = await page.evaluate(() => {
+        await gamePage.evaluate(() => { testGame.battle.spawnAfter = 0; });
+        await gamePage.waitForFunction(() => testGame.battle.bossNode && testGame.music.bossMusic.playing);
+        const boss = await gamePage.evaluate(() => {
             const n = testGame.battle.bossNode, control = n.getComponent('BossController'), ranged = n.getComponent('BossRangedAttack'), music = testGame.music;
             return { health: control.maxHealth, melee: control.attackDamage, ranged: ranged.damage,
                 normal: music.backgroundMusic.playing, boss: music.bossMusic.playing, bubbles: music.ambience.playing };
         });
         assert.equal(boss.health, 200); assert.equal(boss.melee, 5); assert.equal(boss.ranged, 5); assert(!boss.normal && boss.boss && boss.bubbles);
         await page.screenshot({ path: path.join(out, 'standalone-boss.png') });
-        await page.evaluate(() => { testGame.battle.bossNode.emit('boss-defeated'); });
+        await gamePage.evaluate(() => { testGame.battle.bossNode.emit('boss-defeated'); });
         await page.waitForTimeout(400);
-        const victory = await page.evaluate(() => ({ complete: testGame.battle.isComplete, paused: cc.director.isPaused(),
+        const victory = await gamePage.evaluate(() => ({ complete: testGame.battle.isComplete, paused: cc.director.isPaused(),
             normal: testGame.music.backgroundMusic.playing, boss: testGame.music.bossMusic.playing, bubbles: testGame.music.ambience.playing }));
         assert(victory.complete && victory.paused && victory.normal && !victory.boss && victory.bubbles);
         await page.screenshot({ path: path.join(out, 'standalone-victory.png') });

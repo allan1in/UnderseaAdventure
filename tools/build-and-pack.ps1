@@ -1,6 +1,7 @@
 param(
     [string]$Creator = 'D:\Cocos\editors\Creator\3.8.8\CocosCreator.exe',
-    [string]$Node = 'node'
+    [string]$Node = 'node',
+    [string]$Python = 'python'
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -11,4 +12,8 @@ $job = Start-Process -FilePath $Creator -ArgumentList @('--disable-gpu', '--no-s
 if ($job.ExitCode -ne 36) { throw "Cocos build failed with exit code $($job.ExitCode). See build/builder-stderr.log." }
 & $Node (Join-Path $PSScriptRoot 'pack-single-html.cjs')
 if ($LASTEXITCODE -ne 0) { throw 'Single HTML packing failed.' }
+Copy-Item -LiteralPath (Join-Path $projectRoot 'build\undersea-adventure-single.html') -Destination (Join-Path $projectRoot 'build\undersea-adventure-full.html') -Force
+& $Python (Join-Path $PSScriptRoot 'prepare-vercel.py') $Node
+if ($LASTEXITCODE -ne 0) { throw 'Mobile distribution preparation failed.' }
+Copy-Item -LiteralPath (Join-Path $projectRoot 'build\undersea-adventure-compact.html') -Destination (Join-Path $projectRoot 'build\undersea-adventure-single.html') -Force
 Write-Output ('HTML: ' + (Join-Path $projectRoot 'build\undersea-adventure-single.html'))

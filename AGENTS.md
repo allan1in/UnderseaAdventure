@@ -7,6 +7,12 @@
 
 ---
 
+## 当前压缩与线上加载（2026-10-07）
+
+`tools/build-and-pack.ps1` 需要 Node.js、Python 与 Pillow。打包保留 `build/undersea-adventure-full.html` 原版，并输出压缩单文件 `build/undersea-adventure-single.html`；`tools/prepare-vercel.py` 仅压缩构建副本的图片颜色，保持游戏贴图尺寸与透明通道，原始 `assets/` 不变。
+
+线上发布目录为 `build/vercel-mobile`。根页面内嵌轻量加载界面，游戏资源放在内容哈希目录，按真实 Cocos 预加载进度更新；加载缓慢或失败时显示重试按钮。不要再将巨大的单文件作为线上首个响应。`tools/check-mobile-deployment.cjs <URL>` 验证手机视口、限速网络、首次加载与触屏移动；该模拟结果不等于实体手机验证。
+
 # Undersea Adventure · 海底冒险
 
 从 `mushroom` 复制的独立 Cocos 项目，项目名称为 `UnderseaAdventure`。已接入主题素材目录中的 37 张运行时图片，玩法沿用原工程。首次打开会重新生成导入缓存；资源和 `.meta` 引用保持完整。
