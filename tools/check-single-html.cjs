@@ -27,6 +27,7 @@ fs.mkdirSync(out, { recursive: true });
         if (await page.locator('#game').count()) {
             await page.waitForFunction(() => /game-/.test(document.getElementById('game').src));
             gamePage = await (await page.locator('#game').elementHandle()).contentFrame();
+            await page.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, {timeout:240000});
             await gamePage.waitForFunction(() => !!window.System, null, {timeout:120000});
         }
         await gamePage.evaluate(async () => { window.cc = await System.import('cc'); });
