@@ -2,6 +2,8 @@
 
 基于 **Cocos Creator 3.8.8** 的 2D 海底冒险游戏，支持浏览器与触屏操作。
 
+**[在线试玩](https://undersea-adventure.vercel.app)**
+
 拖动摇杆移动，自动攻击敌人；收集贝壳、招募海洋伙伴并进化英雄，最终挑战章鱼 Boss。
 
 ## 本地运行
