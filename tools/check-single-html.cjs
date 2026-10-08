@@ -25,7 +25,7 @@ fs.mkdirSync(out, { recursive: true });
     try {
         await page.goto(remote ? input : pathToFileURL(input).href, { waitUntil: 'domcontentloaded', timeout: 180000 });
         if (await page.locator('#game').count()) {
-            await page.waitForFunction(() => /game-/.test(document.getElementById('game').src));
+            await page.waitForFunction(() => /game-|^blob:/.test(document.getElementById('game').src));
             gamePage = await (await page.locator('#game').elementHandle()).contentFrame();
             await page.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, {timeout:240000});
             await gamePage.waitForFunction(() => !!window.System, null, {timeout:120000});
@@ -54,6 +54,19 @@ fs.mkdirSync(out, { recursive: true });
         });
         assert(Math.hypot(playing.x - before.x, playing.y - before.y) > 10); assert(playing.time > 0); assert(playing.music && playing.bubbles && !playing.boss);
         await page.screenshot({ path: path.join(out, 'standalone-playing.png') });
+        await gamePage.waitForFunction(() => {
+            const evolution=testGame.hero.getComponent('HeroEvolution');
+            return testGame.world.getComponent('PetSystem')?.assetsReady && testGame.battle.bossPrefab &&
+                [1,2,3].every(i=>evolution.themeIdleClips[i]&&evolution.themeAttackClips[i]);
+        },null,{timeout:120000});
+        const evolution = await gamePage.evaluate(() => {
+            const pets=testGame.world.getComponent('PetSystem');
+            const names=pets.petPrefabs.map(prefab=>prefab.name);
+            for(const index of [0,1,2]) {if(!pets.recruit(index))throw Error('Pet recruitment failed');}
+            return {names,stage:testGame.hero.getComponent('HeroEvolution').stageIndex,pets:pets.recruitedCount};
+        });
+        assert.deepEqual(evolution.names,['PetRedDragon','PetFox','PetWhiteTiger','PetBlueDragon']);
+        assert.equal(evolution.stage,3);assert.equal(evolution.pets,3);
         // Shorten only this test instance's timer to exercise the production spawn path.
         await gamePage.evaluate(() => { testGame.battle.spawnAfter = 0; });
         await gamePage.waitForFunction(() => testGame.battle.bossNode && testGame.music.bossMusic.playing);

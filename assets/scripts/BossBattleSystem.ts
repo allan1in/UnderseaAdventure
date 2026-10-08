@@ -1,4 +1,4 @@
-import { _decorator, BlockInputEvents, Component, director, instantiate, Node, Prefab, sp, Sprite, UITransform } from 'cc';
+import { _decorator, BlockInputEvents, Component, director, instantiate, Node, Prefab, resources, sp, Sprite, UITransform } from 'cc';
 import { BossController } from './BossController';
 import { HeroHealth } from './HeroHealth';
 import { FlatShape } from './FlatShape';
@@ -32,6 +32,11 @@ export class BossBattleSystem extends Component {
     get isComplete(): boolean { return this.completed; }
 
     onLoad(): void {
+        this.scheduleOnce(() => { if (!this.bossPrefab) resources.load('gameplay/deferred/Boss', Prefab, (error, prefab) => {
+            if (!this.isValid) return;
+            if (error) console.error('[BossBattleSystem] Boss 加载失败', error);
+            else this.bossPrefab = prefab;
+        }); }, .25);
         this.hero ??= this.node.getChildByName('Hero'); this.ground ??= this.node.getChildByName('Ground');
         const warningNode = this.node.parent?.getChildByName('BossWarning');
         if (!this.themeWarning && warningNode?.getComponent(Sprite)) this.themeWarning = warningNode;

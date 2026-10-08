@@ -9,9 +9,11 @@
 
 ## 当前压缩与线上加载（2026-10-07）
 
-`tools/build-and-pack.ps1` 需要 Node.js、Python 与 Pillow。打包保留 `build/undersea-adventure-full.html` 原版，并输出压缩单文件 `build/undersea-adventure-single.html`；`tools/prepare-vercel.py` 仅压缩构建副本的图片颜色，保持游戏贴图尺寸与透明通道，原始 `assets/` 不变。
+`tools/build-and-pack.ps1` 需要 Node.js、Python 与 Pillow。打包保留 `build/undersea-adventure-full.html` 原版，并输出压缩单文件 `build/undersea-adventure-single.html`；`tools/prepare-vercel.py` 仅压缩构建副本：静态背景和 UI 贴图按移动端显示尺寸缩小，并同步调整 SpriteFrame 的 rect、originalSize、offset 和 vertices；角色动画保留帧尺寸。原始 `assets/` 图片和音频不变。音频压缩使用项目临时目录中的 imageio-ffmpeg，可用 Python 安装到 `temp/media-python`。
 
-线上发布目录为 `build/vercel-mobile`。根页面内嵌轻量加载界面，游戏资源放在内容哈希目录，按真实 Cocos 预加载进度更新；加载缓慢或失败时显示重试按钮。不要再将巨大的单文件作为线上首个响应。`tools/check-mobile-deployment.cjs <URL>` 验证手机视口、限速网络、首次加载与触屏移动；该模拟结果不等于实体手机验证。
+线上发布目录为 `build/vercel-mobile`。根页面内嵌轻量加载界面，游戏资源放在内容哈希目录。`tools/pack-fast-start.cjs` 通过运行真实场景记录开场依赖，生成 `startup.html.gz`，后续资源合并至 `later-assets.json.gz`。现代浏览器下载并解压开场包，再通过 Blob iframe 启动；不支持 DecompressionStream 的浏览器使用普通分文件版本。按实际下载及 Cocos 预加载进度更新；加载缓慢或失败时显示重试按钮。不要再将巨大的单文件作为线上首个响应。`tools/check-mobile-deployment.cjs <URL>` 验证手机视口、限速网络、首次加载与触屏移动；第三个参数可指定加载上限毫秒数（如 `10000`）。模拟条件为下载 1.5 MB/s、70 ms 延迟及 CPU 4 倍限速；该模拟结果不等于实体手机验证。
+
+2026-10-07 阶段状态：已重新构建用户最新 Boss 攻击素材，单文件约 24.7 MiB，开场包约 4.8 MiB；已发布至 https://undersea-adventure.vercel.app（部署 dpl_GkyYvbDfxxhhKhTmzGvipzmuihe9，资源 game-ff3078755719）。本地同体积开场包模拟约 15.3 秒；正式地址本轮限速模拟约 29.6 秒，加载界面和触屏移动通过、错误为空，10 秒目标仍未达成，未验证实体手机。后续英雄形态、宠物与 Boss Prefab 移至异步加载，Prefab `.meta` UUID 保留。子域名 undersea.allan1in.top 已关联项目，尚待 Cloudflare 添加 CNAME：undersea → b4f7530ac38b9d0e.vercel-dns-017.com，代理关闭（仅 DNS）。
 
 # Undersea Adventure · 海底冒险
 

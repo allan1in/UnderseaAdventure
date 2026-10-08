@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, Vec2 } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Vec2 } from 'cc';
 import { PetFollower } from './PetFollower';
 import { CircleBody2D } from './CircleBody2D';
 
@@ -30,10 +30,18 @@ export class PetSystem extends Component {
     private pets: Node[] = [];
 
     get recruitedCount(): number { return this.pets.length; }
+    get assetsReady(): boolean { return this.petPrefabs.length === PET_CATALOG.length; }
 
     onLoad(): void {
         this.hero ??= this.node.getChildByName('Hero');
         this.ground ??= this.node.getChildByName('Ground');
+        this.scheduleOnce(() => { if (!this.assetsReady) Promise.all(['PetRedDragon', 'PetFox', 'PetWhiteTiger', 'PetBlueDragon'].map(name =>
+            new Promise<Prefab>((resolve, reject) => resources.load(`gameplay/deferred/${name}`, Prefab, (error, prefab) => error ? reject(error) : resolve(prefab)))
+        )).then(prefabs => {
+            if (!this.isValid) return;
+            this.petPrefabs = prefabs;
+            this.node.emit('pets-ready');
+        }).catch(error => console.error('[PetSystem] 伙伴加载失败', error)); }, .25);
     }
 
     getCandidates(): number[] {

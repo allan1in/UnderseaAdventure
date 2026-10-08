@@ -5,6 +5,7 @@ const path = require('path');
 
 const buildDir = path.resolve(process.argv[2] || path.join(__dirname, '..', 'build', 'web-mobile'));
 const output = path.resolve(process.argv[3] || path.join(buildDir, '..', 'undersea-adventure-single.html'));
+const initialFiles = process.argv[4] ? new Set(JSON.parse(fs.readFileSync(process.argv[4], 'utf8'))) : null;
 
 function filesUnder(dir, prefix = '') {
     return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -25,10 +26,15 @@ for (const name of filesUnder(buildDir).filter(name => name.endsWith('.bin'))) {
         if (!fs.existsSync(alias)) fs.writeFileSync(alias, bytes);
     }
 }
-const all = filesUnder(buildDir).sort();
+const all = filesUnder(buildDir).filter(name=>!['startup-files.json','startup.html','startup.html.gz','later-assets.json.gz'].includes(name)).sort();
 const scripts = all.filter(name => name.endsWith('.js') && !name.startsWith('loading/') && !['src/polyfills.bundle.js', 'src/system.bundle.js'].includes(name));
 const binary = all.filter(name => !['index.html', 'style.css', 'favicon.svg', 'src/import-map.json'].includes(name) && !name.endsWith('.map') && (!name.endsWith('.js') || /^assets\/[^/]+\/index/.test(name)));
-const payload = Object.fromEntries(binary.map(name => [name, fs.readFileSync(path.join(buildDir, name)).toString('base64')]));
+const payload = Object.fromEntries(binary.filter(name => !initialFiles || initialFiles.has(name) || name.startsWith('loading/')).map(name => [name, fs.readFileSync(path.join(buildDir, name)).toString('base64')]));
+const lateKeys = initialFiles ? binary.filter(name => !Object.hasOwn(payload,name)) : [];
+if (initialFiles) {
+    const late = Object.fromEntries(lateKeys.map(name=>[name,fs.readFileSync(path.join(buildDir,name)).toString('base64')]));
+    fs.writeFileSync(path.join(buildDir,'later-assets.json.gz'),require('zlib').gzipSync(JSON.stringify(late),{level:9}));
+}
 const webpKeys = binary.filter(name => {
     const bytes = fs.readFileSync(path.join(buildDir, name));
     return bytes.subarray(0, 4).toString() === 'RIFF' && bytes.subarray(8, 12).toString() === 'WEBP';
@@ -37,8 +43,9 @@ const webpKeys = binary.filter(name => {
 const boot = String.raw`
 (function () {
   const payload = __PAYLOAD__;
+  const lateKeys = new Set(__LATE_KEYS__);
   const webpKeys = new Set(__WEBP_KEYS__);
-  const base = new URL('.', location.href);
+  const base = new URL('.', document.baseURI);
   const blobs = Object.create(null);
   const mime = {json:'application/json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',ogg:'audio/ogg',mp3:'audio/mpeg',wav:'audio/wav',wasm:'application/wasm',js:'text/javascript',svg:'image/svg+xml'};
   function keyFor(input) {
@@ -67,15 +74,32 @@ const boot = String.raw`
   window.__packedFileCount = Object.keys(payload).length;
 
   const nativeFetch = window.fetch.bind(window);
+  let latePromise;
+  function loadLate(key) {
+    if(!latePromise)console.debug('Undersea late assets requested',key,performance.now());
+    return latePromise ||= nativeFetch(new URL('later-assets.json.gz',base)).then(response=>{
+      if(!response.ok)throw Error('Later assets download failed');
+      return new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
+    }).then(data=>{Object.assign(payload,data);}).catch(error=>{latePromise=null;throw error;});
+  }
   window.fetch = function (input, init) {
+    const key=keyFor(input instanceof Request ? input.url : input);
+    if(lateKeys.has(key)&&!Object.prototype.hasOwnProperty.call(payload,key))return loadLate(key).then(()=>nativeFetch(blobFor(input instanceof Request ? input.url : input),init));
     const replaced = blobFor(input instanceof Request ? input.url : input);
     return nativeFetch(replaced || input, init);
   };
   const nativeOpen = XMLHttpRequest.prototype.open;
+  const nativeSend = XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open = function (method, url) {
     const args = Array.prototype.slice.call(arguments);
     args[1] = blobFor(url) || url;
+    this.__underseaPending = lateKeys.has(keyFor(url)) && !Object.prototype.hasOwnProperty.call(payload,keyFor(url)) ? args : null;
     return nativeOpen.apply(this, args);
+  };
+  XMLHttpRequest.prototype.send = function () {
+    const args=arguments,pending=this.__underseaPending;this.__underseaPending=null;
+    if(!pending)return nativeSend.apply(this,args);
+    loadLate(pending[1]).then(()=>{pending[1]=blobFor(pending[1]);nativeOpen.apply(this,pending);nativeSend.apply(this,args);}).catch(error=>{console.error(error);this.dispatchEvent(new Event('error'));});
   };
   function patchSrc(prototype) {
     const descriptor = Object.getOwnPropertyDescriptor(prototype, 'src');
@@ -84,7 +108,14 @@ const boot = String.raw`
       configurable: descriptor.configurable,
       enumerable: descriptor.enumerable,
       get: descriptor.get,
-      set(value) { return descriptor.set.call(this, blobFor(value) || value); }
+      set(value) {
+        const key=keyFor(value);
+        if(lateKeys.has(key)&&!Object.prototype.hasOwnProperty.call(payload,key)){
+          this.__underseaSrc=value;
+          loadLate(value).then(()=>{if(this.__underseaSrc===value)descriptor.set.call(this,blobFor(value));}).catch(error=>{console.error(error);this.dispatchEvent(new Event('error'));});return;
+        }
+        this.__underseaSrc=value;return descriptor.set.call(this, blobFor(value) || value);
+      }
     });
   }
   patchSrc(HTMLImageElement.prototype);
@@ -98,6 +129,7 @@ const boot = String.raw`
 })();`;
 
 let html = fs.readFileSync(path.join(buildDir, 'index.html'), 'utf8');
+if (initialFiles) html = html.replace('<head>', '<head><base href="__GAME_BASE__">');
 html = html.replace(/<title>[\s\S]*?<\/title>/i, '<title>海底冒险</title>');
 html = html.replace(/<link\b[^>]*href="([^"]+)"[^>]*>/gi, (tag, file) => {
     const name = file.replace(/^\.\//, '');
@@ -119,7 +151,7 @@ html = html.replace(/<img\b[^>]*>/gi, tag => tag.replace(/src="([^"]+)"/i, (attr
     return `src="data:image/png;base64,${payload[name]}"`;
 }));
 html = html.replace(/<script\b[\s\S]*?<\/script>/gi, '').replace(/<\/body>[\s\S]*$/i, '');
-html += `<script>${escapeScript(boot.replace('__PAYLOAD__', JSON.stringify(payload)).replace('__WEBP_KEYS__', JSON.stringify(webpKeys)))}</script>`;
+html += `<script>${escapeScript(boot.replace('__PAYLOAD__', JSON.stringify(payload)).replace('__WEBP_KEYS__', JSON.stringify(webpKeys)).replace('__LATE_KEYS__', JSON.stringify(lateKeys)))}</script>`;
 html += `<script>${escapeScript(fs.readFileSync(path.join(buildDir, 'src/polyfills.bundle.js'), 'utf8'))}</script>`;
 html += `<script>${escapeScript(fs.readFileSync(path.join(buildDir, 'src/system.bundle.js'), 'utf8'))}</script>`;
 html += `<script type="systemjs-importmap">{"imports":{"cc":"./cocos-js/cc.js"}}</script>`;

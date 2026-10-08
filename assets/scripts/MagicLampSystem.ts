@@ -1,5 +1,6 @@
 import { _decorator, BlockInputEvents, Color, Component, director, Director, Graphics, Label, Node, resources, sp, Sprite, SpriteFrame, UITransform, Vec2, Vec3, warn } from 'cc';
 import { HeroHealth } from './HeroHealth';
+import { PetSystem } from './PetSystem';
 import { LampGuide } from './LampGuide';
 import { CoinSystem } from './CoinSystem';
 import { FlatShape } from './FlatShape';
@@ -111,6 +112,7 @@ export class MagicLampSystem extends Component {
             return;
         }
         this.overlay = this.selectionOverlay;
+        this.node.on('pets-ready', this.onPetsReady, this);
         if (this.overlay) {
             this.overlay.active = false;
             this.overlay.on('pet-selected', this.onPetSelected, this);
@@ -314,6 +316,7 @@ export class MagicLampSystem extends Component {
     }
 
     onDestroy(): void {
+        this.node.off('pets-ready', this.onPetsReady, this);
         this.closeSelection();
         this.clearFlights();
         director.off(Director.EVENT_BEFORE_DRAW, this.resizeOverlay, this);
@@ -401,6 +404,7 @@ export class MagicLampSystem extends Component {
     }
 
     private openSelection(): void {
+        if (!this.node.getComponent(PetSystem)?.assetsReady) return;
         if (this.isSelectionOpen || !this.node.parent) return;
         SoundEffects.play('shop');
         if (!this.overlay) {
@@ -420,6 +424,10 @@ export class MagicLampSystem extends Component {
         // pause 停止逻辑、动画和计时；渲染与输入系统继续工作，遮罩仍可显示。
         this.ownsPause = !director.isPaused();
         director.pause();
+    }
+
+    private onPetsReady(): void {
+        if (this.paid >= this.costs[this.stage] && this.hero?.getComponent(HeroHealth)?.isAlive) this.openSelection();
     }
 
     private resizeOverlay(): void {

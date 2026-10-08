@@ -83,7 +83,7 @@ export class HeroEvolution extends Component {
             animation.addClip(this.effectClip);
         }
         this.node.parent?.on('pet-recruited', this.evolve, this);
-        this.loadAdditionalThemeClips();
+        this.scheduleOnce(() => this.loadAdditionalThemeClips(), .25);
     }
 
     start(): void {
