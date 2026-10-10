@@ -1,4 +1,4 @@
-import { _decorator, Animation, AnimationClip, AnimationState, Color, Component, Node, Sprite, SpriteFrame, UITransform } from 'cc';
+import { _decorator, Animation, AnimationClip, AnimationState, Color, Component, Node, sp, Sprite, SpriteFrame, UITransform } from 'cc';
 import { CircleBody2D } from './CircleBody2D';
 import { HeroHealth } from './HeroHealth';
 import { CoinSystem } from './CoinSystem';
@@ -13,6 +13,9 @@ const { ccclass, property, requireComponent } = _decorator;
 export class EnemyController extends Component {
     @property({ type: Node, tooltip: '预制体中可留空，生成器自动关联 Hero；手动放进场景的 Enemy 需要拖入同一 World 下的 Hero' })
     target: Node | null = null;
+
+    @property(sp.SkeletonData)
+    crabSkeleton: sp.SkeletonData | null = null;
 
     @property({ type: AnimationClip, tooltip: '把 SkeletonWalk 动画文件拖到这里' })
     walkClip: AnimationClip | null = null;
@@ -75,6 +78,7 @@ export class EnemyController extends Component {
     hurtOffsetY = 0;
 
     private animation: Animation | null = null;
+    private skeleton: sp.Skeleton | null = null;
     private sprite: Sprite | null = null;
     private idleFrame: SpriteFrame | null = null;
     private facingScale = 1;
@@ -133,6 +137,28 @@ export class EnemyController extends Component {
         this.health = Math.max(1, this.maxHealth);
         this.dead = false;
         this.deathFinished = false;
+        if (this.crabSkeleton) {
+            const visual = this.node.getChildByName('Visual') ?? this.node;
+            const rigNode = new Node('CrabSpine');
+            rigNode.layer = visual.layer;
+            rigNode.setScale(.84, .84, 1);
+            rigNode.addComponent(UITransform);
+            visual.addChild(rigNode);
+            this.skeleton = rigNode.addComponent(sp.Skeleton);
+            this.skeleton.premultipliedAlpha = false;
+            this.skeleton.skeletonData = this.crabSkeleton;
+            for (const from of ['Idle', 'Move', 'Attack', 'Death']) {
+                for (const to of ['Idle', 'Move', 'Attack', 'Death']) {
+                    if (from !== to) this.skeleton.setMix(from, to, to === 'Attack' ? .035 : to === 'Death' ? .04 : .09);
+                }
+            }
+            this.skeleton.setCompleteListener(entry => {
+                if (this.dead && entry.animation.name === 'Death') this.finishDeath();
+            });
+            if (picture !== this.node) picture.active = false;
+            if (this.sprite) this.sprite.enabled = false;
+            if (this.animation) { this.animation.stop(); this.animation.enabled = false; }
+        }
         this.animation?.on(Animation.EventType.FINISHED, this.onAnimationFinished, this);
         if (this.sprite) this.originalColor = this.sprite.color.clone();
         this.setMoving(false);
@@ -141,14 +167,14 @@ export class EnemyController extends Component {
     update(deltaTime: number): void {
         if (this.damageFlashTimer > 0) {
             this.damageFlashTimer = Math.max(0, this.damageFlashTimer - Math.max(0, deltaTime));
-            if (this.damageFlashTimer === 0 && this.sprite) this.sprite.color = this.originalColor;
+            if (this.damageFlashTimer === 0) this.setTint(this.originalColor);
         }
         if (!this.isAlive) return;
         const elapsed = Math.max(0, deltaTime);
         this.attackCooldown = Math.max(0, this.attackCooldown - elapsed);
         if (this.attacking) {
             this.attackElapsed += elapsed;
-            const hitAt = Math.min(Math.max(0, this.hitTime) / Math.max(0.0001, this.attackClip?.speed ?? 1), this.attackDuration);
+            const hitAt = Math.min(Math.max(0, this.hitTime) / (this.skeleton ? 1 : Math.max(0.0001, this.attackClip?.speed ?? 1)), this.attackDuration);
             if (!this.hitApplied && this.attackElapsed >= hitAt) {
                 this.hitApplied = true;
                 // 挥击途中英雄可以离开范围；一轮动画只判定一次，不每帧扣血。
@@ -178,7 +204,8 @@ export class EnemyController extends Component {
             this.node.setScale(dx > 0 ? this.facingScale : -this.facingScale, scale.y, scale.z);
         }
         if (this.attackCooldown <= 0 && targetHealth?.isAlive && this.isTargetInAttackArea(targetHealth)
-            && this.attackClip && this.attackClip.duration > 0 && this.attackClip.speed > 0 && this.animation?.enabledInHierarchy) {
+            && (this.skeleton?.enabledInHierarchy && this.skeleton.findAnimation('Attack')
+                || this.attackClip && this.attackClip.duration > 0 && this.attackClip.speed > 0 && this.animation?.enabledInHierarchy)) {
             this.startAttack(targetHealth);
             return;
         }
@@ -228,14 +255,18 @@ export class EnemyController extends Component {
         this.setMoving(false);
         if (this.dead) {
             this.animation?.stop();
+            this.skeleton?.clearTracks();
             this.deathFinished = true;
         }
         this.damageFlashTimer = 0;
-        if (this.sprite) this.sprite.color = this.originalColor;
+        this.setTint(this.originalColor);
     }
 
     onDestroy(): void {
         this.animation?.off(Animation.EventType.FINISHED, this.onAnimationFinished, this);
+        // Child renderers are destroyed before this parent controller. Spine owns
+        // and disposes its listener; calling its API here can access a freed runtime.
+        this.skeleton = null;
     }
 
     takeDamage(damage: number): void {
@@ -247,10 +278,12 @@ export class EnemyController extends Component {
             this.cancelAttack();
             this.setMoving(false);
             this.damageFlashTimer = 0;
-            if (this.sprite) this.sprite.color = this.originalColor;
+            this.setTint(this.originalColor);
             // 死亡后立即退出阻挡和攻击目标，但保留画面直到死亡动画结束。
             if (this.body) this.body.enabled = false;
-            if (this.animation?.enabledInHierarchy && this.deathClip && this.deathClip.duration > 0 && this.deathClip.speed > 0) {
+            if (this.skeleton?.enabledInHierarchy && this.skeleton.findAnimation('Death')) {
+                this.skeleton.setAnimation(0, 'Death', false);
+            } else if (this.animation?.enabledInHierarchy && this.deathClip && this.deathClip.duration > 0 && this.deathClip.speed > 0) {
                 if (this.deathVisualSize > 0) this.sprite?.getComponent(UITransform)?.setContentSize(this.deathVisualSize, this.deathVisualSize);
                 if (!this.animation.getState(this.deathClip.name)) this.animation.addClip(this.deathClip);
                 const state = this.animation.getState(this.deathClip.name)!;
@@ -262,7 +295,7 @@ export class EnemyController extends Component {
             return;
         }
         this.damageFlashTimer = 0.12;
-        if (this.sprite) this.sprite.color = new Color(255, 100, 100, this.originalColor.a);
+        this.setTint(new Color(255, 100, 100, this.originalColor.a));
     }
 
     private onAnimationFinished(_type: string, state: AnimationState): void {
@@ -300,8 +333,12 @@ export class EnemyController extends Component {
         this.attackTarget = target;
         this.attackElapsed = 0;
         this.hitApplied = false;
-        this.attackDuration = clip.duration / clip.speed;
+        this.attackDuration = this.skeleton ? this.skeleton.findAnimation('Attack').duration : clip.duration / clip.speed;
         this.attackCooldown = Math.max(this.attackDuration, Math.max(0, this.attackInterval));
+        if (this.skeleton) {
+            this.skeleton.setAnimation(0, 'Attack', false);
+            return;
+        }
         if (!this.animation!.getState(clip.name)) this.animation!.addClip(clip);
         const state = this.animation!.getState(clip.name)!;
         state.wrapMode = AnimationClip.WrapMode.Normal;
@@ -345,6 +382,14 @@ export class EnemyController extends Component {
 
     private setMoving(moving: boolean): void {
         if (this.attacking) return;
+        if (this.skeleton) {
+            if (!this.dead) {
+                const action = moving ? 'Move' : 'Idle';
+                if (this.skeleton.getCurrent(0)?.animation.name !== action) this.skeleton.setAnimation(0, action, true);
+            }
+            this.moving = moving;
+            return;
+        }
         if (this.idleClip && !this.dead) {
             const clip = moving ? this.walkClip : this.idleClip;
             if (clip && this.animation?.enabledInHierarchy) {
@@ -372,5 +417,10 @@ export class EnemyController extends Component {
             if (this.sprite) this.sprite.spriteFrame = this.idleFrame;
         }
         this.moving = moving;
+    }
+
+    private setTint(color: Color): void {
+        if (this.sprite) this.sprite.color = color;
+        if (this.skeleton) this.skeleton.color = color;
     }
 }

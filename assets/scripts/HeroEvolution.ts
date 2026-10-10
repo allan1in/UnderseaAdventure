@@ -31,6 +31,14 @@ export class HeroEvolution extends Component {
     @property([JsonAsset]) frameIndices: JsonAsset[] = [];
     @property(JsonAsset) formData: JsonAsset | null = null;
     @property(sp.SkeletonData) finalSkeleton: sp.SkeletonData | null = null;
+    @property({ type: sp.SkeletonData, tooltip: '第一形态完整骨骼动画：Idle、Move、Attack' })
+    stageOneSkeleton: sp.SkeletonData | null = null;
+    @property({ type: sp.SkeletonData, tooltip: '第二形态完整骨骼动画：Idle、Move、Attack' })
+    stageTwoSkeleton: sp.SkeletonData | null = null;
+    @property({ type: sp.SkeletonData, tooltip: '第三形态完整骨骼动画：Idle、Move、Attack' })
+    stageThreeSkeleton: sp.SkeletonData | null = null;
+    @property({ type: sp.SkeletonData, tooltip: '第四形态完整骨骼动画：Idle、Move、Attack，含独立披风' })
+    stageFourSkeleton: sp.SkeletonData | null = null;
     @property(Node) upgradeEffect: Node | null = null;
     @property({ type: [SpriteFrame], tooltip: '海底主题四个形态的外观；没有动作帧的形态使用静态图片' })
     themeFrames: SpriteFrame[] = [];
@@ -84,6 +92,30 @@ export class HeroEvolution extends Component {
         }
         this.node.parent?.on('pet-recruited', this.evolve, this);
         this.scheduleOnce(() => this.loadAdditionalThemeClips(), .25);
+        if (!this.stageOneSkeleton) resources.load('gameplay/hero/stage01-rig/hero-stage-01', sp.SkeletonData, (error, data) => {
+            if (!this.isValid) return;
+            if (error) { console.error('[HeroEvolution] 第一形态骨骼加载失败', error); return; }
+            this.stageOneSkeleton = data;
+            if (this.stage === 0) this.applyStageOneSkeleton();
+        });
+        if (!this.stageTwoSkeleton) resources.load('gameplay/hero/stage02-rig/hero-stage-02', sp.SkeletonData, (error, data) => {
+            if (!this.isValid) return;
+            if (error) { console.error('[HeroEvolution] 第二形态骨骼加载失败', error); return; }
+            this.stageTwoSkeleton = data;
+            if (this.stage === 1) this.applyStageTwoSkeleton();
+        });
+        if (!this.stageThreeSkeleton) resources.load('gameplay/hero/stage03-rig/hero-stage-03', sp.SkeletonData, (error, data) => {
+            if (!this.isValid) return;
+            if (error) { console.error('[HeroEvolution] 第三形态骨骼加载失败', error); return; }
+            this.stageThreeSkeleton = data;
+            if (this.stage === 2) this.applyStageThreeSkeleton();
+        });
+        if (!this.stageFourSkeleton) resources.load('gameplay/hero/stage04-rig/hero-stage-04', sp.SkeletonData, (error, data) => {
+            if (!this.isValid) return;
+            if (error) { console.error('[HeroEvolution] 第四形态骨骼加载失败', error); return; }
+            this.stageFourSkeleton = data;
+            if (this.stage === 3) this.applyStageFourSkeleton();
+        });
     }
 
     start(): void {
@@ -91,6 +123,15 @@ export class HeroEvolution extends Component {
         const visual = this.getComponent(HeroVisual), hero = this.getComponent(HeroController);
         if (!form?.themeVisual || !this.themeFrames[0] || !visual || !hero) return;
         const animation = visual.animationComponent;
+        if (this.stageOneSkeleton) {
+            hero.swimActions = true;
+            hero.slashClip = null;
+            hero.themeSlashFrame = this.themeSlashFrames[0] ?? null;
+            hero.themeSlashBounds = this.themeSlashBounds[0] ?? new Vec4(0, 0, 1, 1);
+            this.applyThemeBody(form);
+            this.applyStageOneSkeleton();
+            return;
+        }
         // 编辑器已打开的场景可能尚未同步新增字段，沿用原 Animation 上的资源引用。
         this.stageOneIdleClip ??= animation?.clips.find(clip => clip?.name === 'HeroIdle') ?? null;
         this.stageOneRunClip ??= animation?.clips.find(clip => clip?.name === 'HeroWalk') ?? hero.walkClip;
@@ -120,6 +161,17 @@ export class HeroEvolution extends Component {
         hero.attackClip = attack;
         hero.hitTime = attack.duration / Math.max(.0001, attack.speed) * form.attack.hitProgress;
         hero.attackSoundDelay = attack.duration / Math.max(.0001, attack.speed) * .25;
+        this.applyStageOneSkeleton();
+        hero.stopMoving();
+    }
+
+    private applyStageOneSkeleton(): void {
+        const visual = this.getComponent(HeroVisual), hero = this.getComponent(HeroController);
+        if (!this.stageOneSkeleton || !visual || !hero || this.stage !== 0) return;
+        visual.configureSpine(this.stageOneSkeleton, { x: 10, y: -11, scale: .68, singleTrack: true });
+        hero.attackOffsetX = this.forms[0].attack.x;
+        hero.hitTime = .205;
+        hero.attackSoundDelay = .12;
         hero.stopMoving();
     }
 
@@ -131,7 +183,11 @@ export class HeroEvolution extends Component {
         const themed = !!(this.themeFrames[next] && form?.themeVisual);
         if (!form || !visual || !hero || !health?.isAlive || (next === 3 && !themed && !this.finalSkeleton)) return;
         let idle: AnimationClip | null = null, walk: AnimationClip | null = null, attack: AnimationClip | null = null;
-        if (themed) {
+        const skeletonData = next === 1 ? this.stageTwoSkeleton : next === 2 ? this.stageThreeSkeleton : next === 3 ? this.stageFourSkeleton : null;
+        const articulated = !!skeletonData;
+        if (articulated) {
+            visual.configureSpine(skeletonData!, { x: 10, y: -11, scale: next === 1 ? .74 : next === 2 ? .80 : .86, singleTrack: true });
+        } else if (themed) {
             this.configureThemeVisual(form, next, visual);
             [idle, walk, attack] = this.makeThemeClips(form, next);
         } else if (next < 3) {
@@ -154,6 +210,11 @@ export class HeroEvolution extends Component {
         hero.attackSoundVolume = next < 2 ? 1 : .8;
         health.upgrade(form.life, themed ? form.themeVisual!.barY : form.barY);
         this.stage = next;
+        if (articulated) {
+            if (next === 1) this.applyStageTwoSkeleton();
+            else if (next === 2) this.applyStageThreeSkeleton();
+            else this.applyStageFourSkeleton();
+        }
         SoundEffects.play('player-upgrade');
         if (this.effectClip && this.upgradeEffect) {
             this.upgradeEffect.active = true;
@@ -161,6 +222,39 @@ export class HeroEvolution extends Component {
             this.effectTime = this.effectClip.duration;
         }
         this.node.emit('hero-evolved', this.stage);
+    }
+
+    private applyStageTwoSkeleton(): void {
+        const visual = this.getComponent(HeroVisual), hero = this.getComponent(HeroController);
+        if (!this.stageTwoSkeleton || !visual || !hero || this.stage !== 1) return;
+        visual.configureSpine(this.stageTwoSkeleton, { x: 10, y: -11, scale: .74, singleTrack: true });
+        hero.walkClip = hero.attackClip = null;
+        hero.attackOffsetX = this.forms[1].attack.x;
+        hero.hitTime = .205;
+        hero.attackSoundDelay = .12;
+        hero.stopMoving();
+    }
+
+    private applyStageThreeSkeleton(): void {
+        const visual = this.getComponent(HeroVisual), hero = this.getComponent(HeroController);
+        if (!this.stageThreeSkeleton || !visual || !hero || this.stage !== 2) return;
+        visual.configureSpine(this.stageThreeSkeleton, { x: 10, y: -11, scale: .80, singleTrack: true });
+        hero.walkClip = hero.attackClip = null;
+        hero.attackOffsetX = this.forms[2].attack.x;
+        hero.hitTime = .205;
+        hero.attackSoundDelay = .12;
+        hero.stopMoving();
+    }
+
+    private applyStageFourSkeleton(): void {
+        const visual = this.getComponent(HeroVisual), hero = this.getComponent(HeroController);
+        if (!this.stageFourSkeleton || !visual || !hero || this.stage !== 3) return;
+        visual.configureSpine(this.stageFourSkeleton, { x: 10, y: -11, scale: .86, singleTrack: true });
+        hero.walkClip = hero.attackClip = null;
+        hero.attackOffsetX = this.forms[3].attack.x;
+        hero.hitTime = .205;
+        hero.attackSoundDelay = .12;
+        hero.stopMoving();
     }
 
     update(dt: number): void {
@@ -224,13 +318,14 @@ export class HeroEvolution extends Component {
     }
 
     private loadAdditionalThemeClips(): void {
-        if ([1, 2, 3].every(stage => this.hasThemeAnimations(stage))) return;
+        if ([1, 2, 3].every(stage => (stage === 1 && !!this.stageTwoSkeleton) || (stage === 2 && !!this.stageThreeSkeleton) || (stage === 3 && !!this.stageFourSkeleton) || this.hasThemeAnimations(stage))) return;
         // 兼容编辑器仍打开旧场景的情况，新数组未同步时从 resources 补齐后续形态。
         this.loadingThemeClips = true;
         resources.loadDir('gameplay/hero/theme-animations', AnimationClip, (error, clips) => {
             if (!this.isValid) return;
             if (error) console.error('[HeroEvolution] 英雄动画加载失败', error);
             else for (let stage = 1; stage < 4; stage++) {
+                if ((stage === 1 && this.stageTwoSkeleton) || (stage === 2 && this.stageThreeSkeleton) || (stage === 3 && this.stageFourSkeleton)) continue;
                 const prefix = `HeroStage${String(stage + 1).padStart(2, '0')}`;
                 const idle = clips.find(clip => clip.name === `${prefix}Idle`);
                 const run = clips.find(clip => clip.name === `${prefix}Walk`);

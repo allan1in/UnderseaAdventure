@@ -359,7 +359,17 @@
     "idleRange": 100,
     "checkInterval": 0.1,
     "footOffsetY": -30.5,
-    "_id": ""
+    "_id": "",
+    "petSkeleton": {
+      "__uuid__": "8a780f81-19c5-48da-8acb-b87e14fadb4a",
+      "__expectedType__": "sp.SkeletonData"
+    },
+    "skeletonScale": 0.46789068609022555,
+    "skeletonOffsetX": -18.48168210056391,
+    "skeletonOffsetY": -0.15768216877420826,
+    "skeletonCardSize": 224,
+    "skeletonCardOffsetX": -39.5,
+    "skeletonCardOffsetY": 1
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -423,29 +433,13 @@
     "node": {
       "__id__": 9
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 22
     },
     "_id": "",
-    "_clips": [
-      {
-        "__uuid__": "e9eb8432-5639-4e4a-9591-f8823baee19a",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "4e3a6ddc-bb6d-47f5-a063-c8f7de0141c9",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "35dacd76-89f5-4df0-941e-5fd2f00990cf",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "e9eb8432-5639-4e4a-9591-f8823baee19a",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_clips": [],
+    "_defaultClip": null,
     "playOnLoad": false
   },
   {
@@ -460,7 +454,7 @@
     "node": {
       "__id__": 1
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 24
     },
@@ -468,18 +462,9 @@
     "animation": {
       "__id__": 21
     },
-    "idleClip": {
-      "__uuid__": "e9eb8432-5639-4e4a-9591-f8823baee19a",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "moveClip": {
-      "__uuid__": "4e3a6ddc-bb6d-47f5-a063-c8f7de0141c9",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "attackClip": {
-      "__uuid__": "35dacd76-89f5-4df0-941e-5fd2f00990cf",
-      "__expectedType__": "cc.AnimationClip"
-    }
+    "idleClip": null,
+    "moveClip": null,
+    "attackClip": null
   },
   {
     "__type__": "cc.CompPrefabInfo",

@@ -23,3 +23,5 @@ node_modules/
 #//////////////////////////
 .idea/
 .vercel/
+__pycache__/
+*.pyc

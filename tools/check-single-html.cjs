@@ -12,6 +12,7 @@ fs.mkdirSync(out, { recursive: true });
 (async () => {
     const browser = await chromium.launch({ channel: 'chrome', headless: true });
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    if (process.argv.includes('--fallback-inflate')) await page.addInitScript(() => { window.DecompressionStream = undefined; });
     const errors = [], external = [];
     let gamePage = page;
     page.on('pageerror', e => errors.push(e.stack));
@@ -25,11 +26,21 @@ fs.mkdirSync(out, { recursive: true });
     try {
         await page.goto(remote ? input : pathToFileURL(input).href, { waitUntil: 'domcontentloaded', timeout: 180000 });
         if (await page.locator('#game').count()) {
+            assert.equal(await page.locator('#retry').count(), 0);
             await page.waitForFunction(() => /game-|^blob:/.test(document.getElementById('game').src));
             gamePage = await (await page.locator('#game').elementHandle()).contentFrame();
             await page.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, {timeout:240000});
             await gamePage.waitForFunction(() => !!window.System, null, {timeout:120000});
+            await gamePage.evaluate(async () => {
+                const cc = await System.import('cc');
+                const world = cc.director.getScene().getChildByName('Canvas').getChildByName('World');
+                const hero = world.getChildByName('Hero').getComponent('HeroEvolution');
+                if (!world.getComponent('PetSystem').assetsReady || !world.getComponent('BossBattleSystem').bossPrefab ||
+                    ![hero.stageOneSkeleton,hero.stageTwoSkeleton,hero.stageThreeSkeleton,hero.stageFourSkeleton].every(Boolean))
+                    throw Error('Game became visible before all gameplay assets were ready');
+            });
         }
+        await gamePage.waitForFunction(() => !!window.System, null, { timeout: 120000 });
         await gamePage.evaluate(async () => { window.cc = await System.import('cc'); });
         await gamePage.waitForFunction(() => window.cc?.director.getScene()?.getChildByName('Canvas')?.getChildByName('World')?.getChildByName('Hero'), null, { timeout: 120000 });
         await page.waitForTimeout(1500);
@@ -57,25 +68,25 @@ fs.mkdirSync(out, { recursive: true });
         await gamePage.waitForFunction(() => {
             const evolution=testGame.hero.getComponent('HeroEvolution');
             return testGame.world.getComponent('PetSystem')?.assetsReady && testGame.battle.bossPrefab &&
-                [1,2,3].every(i=>evolution.themeIdleClips[i]&&evolution.themeAttackClips[i]);
+                [evolution.stageOneSkeleton,evolution.stageTwoSkeleton,evolution.stageThreeSkeleton,evolution.stageFourSkeleton].every(Boolean);
         },null,{timeout:120000});
         const evolution = await gamePage.evaluate(() => {
             const pets=testGame.world.getComponent('PetSystem');
             const names=pets.petPrefabs.map(prefab=>prefab.name);
             for(const index of [0,1,2]) {if(!pets.recruit(index))throw Error('Pet recruitment failed');}
-            return {names,stage:testGame.hero.getComponent('HeroEvolution').stageIndex,pets:pets.recruitedCount};
+            const rigs=pets.petPrefabs.map(prefab=>{const data=prefab.data.getComponent('PetFollower').petSkeleton;return{name:data?.name,slots:data?.skeletonJson?.slots.length,actions:Object.keys(data?.skeletonJson?.animations??{})}});return {names,rigs,stage:testGame.hero.getComponent('HeroEvolution').stageIndex,pets:pets.recruitedCount};
         });
         assert.deepEqual(evolution.names,['PetRedDragon','PetFox','PetWhiteTiger','PetBlueDragon']);
-        assert.equal(evolution.stage,3);assert.equal(evolution.pets,3);
+        assert(evolution.rigs.every(r=>r.name&&['Idle','Move','Attack'].every(a=>r.actions.includes(a))));assert.equal(evolution.rigs[3].slots,4);assert.equal(evolution.stage,3);assert.equal(evolution.pets,3);
         // Shorten only this test instance's timer to exercise the production spawn path.
         await gamePage.evaluate(() => { testGame.battle.spawnAfter = 0; });
         await gamePage.waitForFunction(() => testGame.battle.bossNode && testGame.music.bossMusic.playing);
         const boss = await gamePage.evaluate(() => {
             const n = testGame.battle.bossNode, control = n.getComponent('BossController'), ranged = n.getComponent('BossRangedAttack'), music = testGame.music;
-            return { health: control.maxHealth, melee: control.attackDamage, ranged: ranged.damage,
+            const body=n.getComponent('CircleBody2D');return { body:body&&{rx:body.radius,ry:body.verticalRadius,y:body.offsetY,enabled:body.enabled},health: control.maxHealth, melee: control.attackDamage, ranged: ranged.damage,
                 normal: music.backgroundMusic.playing, boss: music.bossMusic.playing, bubbles: music.ambience.playing };
         });
-        assert.equal(boss.health, 200); assert.equal(boss.melee, 5); assert.equal(boss.ranged, 5); assert(!boss.normal && boss.boss && boss.bubbles);
+        assert.deepEqual(boss.body,{rx:100,ry:55,y:-50,enabled:true});assert.equal(boss.health, 200); assert.equal(boss.melee, 5); assert.equal(boss.ranged, 5); assert(!boss.normal && boss.boss && boss.bubbles);
         await page.screenshot({ path: path.join(out, 'standalone-boss.png') });
         await gamePage.evaluate(() => { testGame.battle.bossNode.emit('boss-defeated'); });
         await page.waitForTimeout(400);

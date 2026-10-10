@@ -29,10 +29,13 @@ export class BossController extends Component {
     @property hurtHeight = 300;
     @property hurtOffsetX = 0;
     @property hurtOffsetY = -5;
+    @property({ tooltip: '身体底部阻挡椭圆的水平半径，不覆盖伸出的触手' }) bodyRadiusX = 100;
+    @property bodyRadiusY = 55;
+    @property bodyOffsetY = -50;
     @property(Node) ground: Node | null = null;
     @property(Node) healthFill: Node | null = null;
     @property({ tooltip: '相对于 Boss 身体中心轴的固定横向位置' }) healthBarOffsetX = 0;
-    @property({ tooltip: '血条固定高度，不随动作图片尺寸变化' }) healthBarOffsetY = 390;
+    @property({ tooltip: '血条位于骨骼头顶上方，保留间隙且不随动作变化' }) healthBarOffsetY = 210;
     private healthBar: Node | null = null;
     private health = 0;
     private visual: BossVisual | null = null;
@@ -43,6 +46,7 @@ export class BossController extends Component {
     private defeated = false;
     private rangedAttack: BossRangedAttack | null = null;
     private rangedCooldown = 0;
+    private body: CircleBody2D | null = null;
 
     get currentHealth(): number { return this.health; }
     get isAlive(): boolean { return this.health > 0 && this.enabledInHierarchy; }
@@ -51,11 +55,20 @@ export class BossController extends Component {
     onLoad(): void {
         this.visual = this.getComponent(BossVisual); this.visual?.onLoad();
         this.rangedAttack = this.getComponent(BossRangedAttack) ?? this.addComponent(BossRangedAttack);
-        // 兼容编辑器缓存的旧 Prefab：Boss 不参与身体阻挡。
-        const oldBody = this.getComponent(CircleBody2D);
-        if (oldBody) { oldBody.enabled = false; oldBody.destroy(); }
+        this.configureBody();
         this.healthBar = this.healthFill?.parent ?? this.node.getChildByName('HealthBar');
         this.health = Math.max(1, this.maxHealth); this.refreshHealth();
+    }
+
+    configureBody(): CircleBody2D {
+        const body = this.getComponent(CircleBody2D) ?? this.addComponent(CircleBody2D);
+        body.radius = Math.max(0, this.bodyRadiusX);
+        body.verticalRadius = Math.max(.01, this.bodyRadiusY);
+        body.offsetX = 0; body.offsetY = this.bodyOffsetY;
+        body.collisionGroup = 3; body.collisionMask = 3;
+        body.enabled = true;
+        this.body = body;
+        return body;
     }
 
     lateUpdate(): void { this.centerHealthBar(); }
@@ -81,6 +94,7 @@ export class BossController extends Component {
         this.health = Math.max(0, this.health - damage); this.refreshHealth();
         if (this.health > 0) this.visual?.flashHit();
         else {
+            if (this.body) this.body.enabled = false;
             this.rangedAttack?.stop();
             this.attacking = false;
             this.visual?.show('death', true);
@@ -134,14 +148,15 @@ export class BossController extends Component {
             this.rangedAttack?.begin(hero);
             this.rangedCooldown = Math.max(0, this.rangedInterval);
             this.cooldown = Math.max(this.attackInterval, this.rangedAttack!.warningTime + this.rangedAttack!.eruptionDuration);
-            this.visual?.show('attack', true);
+            this.visual?.show('cast', true);
             return;
         }
         const step = Math.min(this.moveSpeed * dt, distance);
         if (distance > .001 && step > .001) {
             const before = this.node.position.clone();
             const next = this.clampToMap(before.x + dx / distance * step, before.y + dy / distance * step);
-            this.node.setPosition(next.x, next.y, before.z);
+            if (this.body) this.body.moveTo(next.x, next.y, true);
+            else this.node.setPosition(next.x, next.y, before.z);
             this.visual?.show(this.node.position.equals(before) ? 'idle' : 'move');
         } else this.visual?.show('idle');
     }

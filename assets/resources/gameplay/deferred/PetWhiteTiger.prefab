@@ -359,7 +359,17 @@
     "idleRange": 100,
     "checkInterval": 0.1,
     "footOffsetY": -30.5,
-    "_id": ""
+    "_id": "",
+    "petSkeleton": {
+      "__uuid__": "c64617b8-c197-4e32-957d-e4c4674029c7",
+      "__expectedType__": "sp.SkeletonData"
+    },
+    "skeletonScale": 0.5,
+    "skeletonOffsetX": 1.25,
+    "skeletonOffsetY": 5.558935,
+    "skeletonCardSize": 220,
+    "skeletonCardOffsetX": 2.5,
+    "skeletonCardOffsetY": 13
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -423,29 +433,13 @@
     "node": {
       "__id__": 9
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 22
     },
     "_id": "",
-    "_clips": [
-      {
-        "__uuid__": "0639e1f1-dfca-4f0b-96e5-4af60d3d910a",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "dabab70d-3355-45a7-a34d-970d3defe96d",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "ed106529-dc29-47e4-82a6-cae693707c7d",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "0639e1f1-dfca-4f0b-96e5-4af60d3d910a",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_clips": [],
+    "_defaultClip": null,
     "playOnLoad": false
   },
   {
@@ -460,7 +454,7 @@
     "node": {
       "__id__": 1
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 24
     },
@@ -468,18 +462,9 @@
     "animation": {
       "__id__": 21
     },
-    "idleClip": {
-      "__uuid__": "0639e1f1-dfca-4f0b-96e5-4af60d3d910a",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "moveClip": {
-      "__uuid__": "dabab70d-3355-45a7-a34d-970d3defe96d",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "attackClip": {
-      "__uuid__": "ed106529-dc29-47e4-82a6-cae693707c7d",
-      "__expectedType__": "cc.AnimationClip"
-    }
+    "idleClip": null,
+    "moveClip": null,
+    "attackClip": null
   },
   {
     "__type__": "cc.CompPrefabInfo",

@@ -359,7 +359,11 @@
     "idleRange": 100,
     "checkInterval": 0.1,
     "footOffsetY": -30.5,
-    "_id": ""
+    "_id": "",
+    "petSkeleton": {
+      "__uuid__": "3e5aeccc-b13b-4cf3-9440-6c05c844483f",
+      "__expectedType__": "sp.SkeletonData"
+    }
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -423,29 +427,13 @@
     "node": {
       "__id__": 9
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 22
     },
     "_id": "",
-    "_clips": [
-      {
-        "__uuid__": "7a0da326-8f61-4b44-9793-d4f95d69800b",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "7d4ba111-6de6-4313-998a-115ddbf3ddfd",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "4669d745-5bea-4f3c-b0cc-eafd0a9d50b0",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "7a0da326-8f61-4b44-9793-d4f95d69800b",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_clips": [],
+    "_defaultClip": null,
     "playOnLoad": false
   },
   {
@@ -460,7 +448,7 @@
     "node": {
       "__id__": 1
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 24
     },
@@ -468,18 +456,9 @@
     "animation": {
       "__id__": 21
     },
-    "idleClip": {
-      "__uuid__": "7a0da326-8f61-4b44-9793-d4f95d69800b",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "moveClip": {
-      "__uuid__": "7d4ba111-6de6-4313-998a-115ddbf3ddfd",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "attackClip": {
-      "__uuid__": "4669d745-5bea-4f3c-b0cc-eafd0a9d50b0",
-      "__expectedType__": "cc.AnimationClip"
-    }
+    "idleClip": null,
+    "moveClip": null,
+    "attackClip": null
   },
   {
     "__type__": "cc.CompPrefabInfo",

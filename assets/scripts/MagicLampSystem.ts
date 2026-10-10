@@ -150,7 +150,7 @@ export class MagicLampSystem extends Component {
         this.progressFill = bar?.getChildByName('Fill') ?? null;
         this.text = bar?.getChildByName('Amount')?.getComponent(Label) ?? null;
         if (this.guide) this.guide.hero = this.hero;
-        if (this.skeleton?.skeletonData) this.skeleton.setAnimation(0, 'idle', true);
+        this.configureAnimation();
         this.showStage(0);
     }
 
@@ -171,7 +171,8 @@ export class MagicLampSystem extends Component {
         picture.setScale(this.visualScale, this.visualScale, 1);
         this.skeleton = picture.addComponent(sp.Skeleton);
         this.skeleton.skeletonData = this.lampData;
-        this.skeleton.setAnimation(0, 'idle', true);
+        this.skeleton.premultipliedAlpha = false;
+        this.configureAnimation();
         const bar = this.child(lamp, 'CoinProgress');
         bar.setPosition(10.009, 170.804, 0);
         bar.getComponent(UITransform)!.setContentSize(173, 27);
@@ -224,6 +225,13 @@ export class MagicLampSystem extends Component {
         }
         const coins = this.node.getComponent(CoinSystem);
         const cost = this.costs[this.stage];
+        // 满额后不再扣款，但资源就绪时仍须再次尝试打开选择界面。
+        if (cost !== undefined && this.paid >= cost && this.lamp?.activeInHierarchy
+            && this.hero?.activeInHierarchy && (!health || health.isAlive)) {
+            this.paymentTimer = 0;
+            this.openSelection();
+            return;
+        }
         if (!this.lamp?.activeInHierarchy || !this.hero?.activeInHierarchy || (health && !health.isAlive)
             || !coins || cost === undefined || this.paid >= cost || coins.balance <= 0 || !this.isNearLamp()) {
             this.paymentTimer = 0;
@@ -262,6 +270,7 @@ export class MagicLampSystem extends Component {
         this.closeSelection();
         this.clearFlights();
         this.paymentTimer = 0;
+        if (this.skeleton?.skeletonData) this.skeleton.setAnimation(0, 'idle', true);
         this.stage = Math.max(0, Math.floor(index));
         this.lamp.active = this.stage < this.costs.length;
         this.paid = this.stage === 0 ? Math.min(this.costs[0], Math.max(0, Math.floor(this.initialPaidCoins))) : 0;
@@ -427,7 +436,21 @@ export class MagicLampSystem extends Component {
     }
 
     private onPetsReady(): void {
-        if (this.paid >= this.costs[this.stage] && this.hero?.getComponent(HeroHealth)?.isAlive) this.openSelection();
+        if (this.costs[this.stage] !== undefined && this.paid >= this.costs[this.stage]
+            && this.lamp?.activeInHierarchy && this.hero?.activeInHierarchy
+            && this.hero.getComponent(HeroHealth)?.isAlive) this.openSelection();
+    }
+
+    private configureAnimation(): void {
+        if (!this.skeleton?.skeletonData) return;
+        for (const from of ['idle', 'idle2', 'summon']) {
+            for (const to of ['idle', 'idle2', 'summon']) {
+                if (from !== to && this.skeleton.findAnimation(from) && this.skeleton.findAnimation(to)) {
+                    this.skeleton.setMix(from, to, .06);
+                }
+            }
+        }
+        this.skeleton.setAnimation(0, 'idle', true);
     }
 
     private resizeOverlay(): void {

@@ -1,0 +1,24 @@
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const {chromium}=require('C:/Users/LIN/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const theme=path.resolve(__dirname,'../../主题素材/海底冒险'),dir=path.join(theme,'textures/characters/partners/animations/jellyfish/original-rig'),out=path.join(theme,'previews/pet-jellyfish-original-motion');
+const rig=JSON.parse(fs.readFileSync(path.join(dir,'pet-jellyfish.json'),'utf8'));
+const mesh=rig.skins[0].attachments['body-art']['body-art'];
+const vertices=[];let k=0;while(k<mesh.vertices.length){const n=mesh.vertices[k++],v=[];let sum=0;for(let i=0;i<n;i++){const index=mesh.vertices[k++],x=mesh.vertices[k++],y=mesh.vertices[k++],weight=mesh.vertices[k++];assert(index<rig.bones.length);sum+=weight;v.push({index,x,y,weight})}assert(Math.abs(sum-1)<1e-6);vertices.push(v)}
+function sample(keys,t,f){let a=keys[0],b=a;for(const key of keys){if(key.time>t){b=key;break}a=b=key}const u=b.time===a.time?0:(t-a.time)/(b.time-a.time);return(a[f]||0)+((b[f]||0)-(a[f]||0))*u}
+let minArea=Infinity;const durations={Idle:3,Move:1.4,Attack:.72};for(const [name,d]of Object.entries(durations))for(let t=0;t<=d+1e-6;t+=1/60){const points=vertices.map((v,i)=>{let x=mesh.uvs[i*2]*256,y=-mesh.uvs[i*2+1]*256;for(const p of v){const bone=rig.bones[p.index].name,track=rig.animations[name].bones[bone];if(bone==='root')continue;x+=sample(track.translate,t,'x')*p.weight;y+=sample(track.translate,t,'y')*p.weight}return[x,y]});for(let i=0;i<mesh.triangles.length;i+=3){const [a,b,c]=mesh.triangles.slice(i,i+3).map(j=>points[j]),area=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);minArea=Math.min(minArea,area);assert(area>0,'Inverted triangle: '+name+' '+t)}}
+
+assert(fs.readFileSync(path.join(dir,'pet-jellyfish.png')).equals(fs.readFileSync(path.join(theme,'textures/characters/partners/animations/jellyfish/idle/idle-01.png'))));
+for(const [name,a]of Object.entries(rig.animations))for(const [bone,track]of Object.entries(a.bones)){
+ assert(Math.abs(track.rotate[0].angle-track.rotate.at(-1).angle)<1e-6,'Rest pose recovery '+name+' '+bone);
+ if(name!=='Attack')assert(Math.abs((track.rotate[1].angle-track.rotate[0].angle)-(track.rotate.at(-1).angle-track.rotate.at(-2).angle))<.8,'Loop continuity');
+}
+(async()=>{const browser=await chromium.launch({channel:'chrome',headless:true}),errors=[];try{
+ const page=await browser.newPage({viewport:{width:1500,height:850}});page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8942/'+encodeURIComponent('主题素材')+'/'+encodeURIComponent('海底冒险')+'/previews/pet-jellyfish-skeleton.html');await page.evaluate(()=>window.ready);await page.locator('#pause').click();await page.evaluate(()=>{drawRig('Idle',0);drawRig('Move',.24);drawRig('Attack',.36)});await page.screenshot({path:path.join(out,'browser.png')});
+ await page.goto(require('url').pathToFileURL(path.resolve(__dirname,'../build/undersea-adventure-single.html')).href);await page.waitForFunction(()=>getComputedStyle(document.getElementById('splash')).display==='none',null,{timeout:120000});
+ const frame=page;
+ const native=await frame.evaluate(async p=>{const cc=await System.import('cc');cc.director.pause();const world=cc.director.getScene().getChildByName('Canvas').getChildByName('World'),hero=world.getChildByName('Hero');const im=new Image();im.src=p.png;await im.decode();const tex=new cc.Texture2D();tex.image=new cc.ImageAsset(im);const data=new cc.sp.SkeletonData();data.skeletonJson=p.json;data.atlasText=p.atlas;data.textures=[tex];data.textureNames=['pet-jellyfish.png'];const n=new cc.Node('TurtleRigPreview');n.layer=hero.layer;n.setPosition(hero.position.x+200,hero.position.y,0);n.setScale(1.6,1.6,1);n.addComponent(cc.UITransform);world.addChild(n);const s=n.addComponent(cc.sp.Skeleton);s.premultipliedAlpha=false;s.skeletonData=data;const result=[];for(const name of ['Idle','Move','Attack']){s.setAnimation(0,name,name!=='Attack');s.updateAnimation(.36);s.updateRenderData();result.push({name,duration:s.findAnimation(name).duration,head:s.findSlot('body-art').getAttachment().name,front:s.findBone('left-inner').rotation})}return result;},{json:rig,atlas:fs.readFileSync(path.join(dir,'pet-jellyfish.atlas'),'utf8'),png:'data:image/png;base64,'+fs.readFileSync(path.join(dir,'pet-jellyfish.png')).toString('base64')});
+ assert.equal(native.length,3);assert(native.every(p=>p.head==='body-art'));assert.deepEqual(errors,[]);await page.screenshot({path:path.join(out,'native.png')});
+ const report={parts:rig.slots.length,bones:rig.bones.length,actions:Object.keys(rig.animations),native,errors,minArea,originalTextureExact:true,previewOnly:true};fs.writeFileSync(path.join(out,'verification.json'),JSON.stringify(report,null,2));console.log(report);
+ }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
+

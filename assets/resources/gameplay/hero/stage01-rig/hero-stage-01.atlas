@@ -1,0 +1,117 @@
+hero-stage-01.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+head
+  rotate: false
+  xy: 4,4
+  size: 240,234
+  orig: 240,234
+  offset: 0,0
+  index: -1
+torso
+  rotate: false
+  xy: 252,4
+  size: 240,230
+  orig: 240,230
+  offset: 0,0
+  index: -1
+backpack
+  rotate: false
+  xy: 500,4
+  size: 240,234
+  orig: 240,234
+  offset: 0,0
+  index: -1
+near-upper-arm
+  rotate: false
+  xy: 748,4
+  size: 240,151
+  orig: 240,151
+  offset: 0,0
+  index: -1
+near-forearm
+  rotate: false
+  xy: 4,246
+  size: 240,120
+  orig: 240,120
+  offset: 0,0
+  index: -1
+near-hand
+  rotate: false
+  xy: 252,246
+  size: 212,142
+  orig: 212,142
+  offset: 0,0
+  index: -1
+far-upper-arm
+  rotate: false
+  xy: 472,246
+  size: 201,116
+  orig: 201,116
+  offset: 0,0
+  index: -1
+far-forearm
+  rotate: false
+  xy: 681,246
+  size: 204,103
+  orig: 204,103
+  offset: 0,0
+  index: -1
+far-hand
+  rotate: false
+  xy: 4,396
+  size: 193,122
+  orig: 193,122
+  offset: 0,0
+  index: -1
+near-thigh
+  rotate: false
+  xy: 205,396
+  size: 126,240
+  orig: 126,240
+  offset: 0,0
+  index: -1
+near-shin
+  rotate: false
+  xy: 339,396
+  size: 125,240
+  orig: 125,240
+  offset: 0,0
+  index: -1
+near-boot
+  rotate: false
+  xy: 472,396
+  size: 239,189
+  orig: 239,189
+  offset: 0,0
+  index: -1
+far-thigh
+  rotate: false
+  xy: 719,396
+  size: 120,240
+  orig: 120,240
+  offset: 0,0
+  index: -1
+far-shin
+  rotate: false
+  xy: 847,396
+  size: 118,240
+  orig: 118,240
+  offset: 0,0
+  index: -1
+far-boot
+  rotate: false
+  xy: 4,644
+  size: 211,165
+  orig: 211,165
+  offset: 0,0
+  index: -1
+sword
+  rotate: false
+  xy: 223,644
+  size: 179,240
+  orig: 179,240
+  offset: 0,0
+  index: -1

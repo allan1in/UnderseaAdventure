@@ -158,28 +158,8 @@
       "__id__": 7
     },
     "playOnLoad": false,
-    "_clips": [
-      {
-        "__uuid__": "d77f4e1b-39b1-408d-b5c9-08264b29580f",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "8dbec1ad-142a-412e-949c-41e95e5eb9b4",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "66f79ffb-e111-49e9-80b2-32677f99b017",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "341e4ebc-d135-4b39-ab82-a88818b0f895",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "d77f4e1b-39b1-408d-b5c9-08264b29580f",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_clips": [],
+    "_defaultClip": null,
     "_id": ""
   },
   {
@@ -199,18 +179,9 @@
       "__id__": 9
     },
     "target": null,
-    "walkClip": {
-      "__uuid__": "8dbec1ad-142a-412e-949c-41e95e5eb9b4",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "deathClip": {
-      "__uuid__": "341e4ebc-d135-4b39-ab82-a88818b0f895",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "attackClip": {
-      "__uuid__": "66f79ffb-e111-49e9-80b2-32677f99b017",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "walkClip": null,
+    "deathClip": null,
+    "attackClip": null,
     "attackVisualScale": 0.11703511053315994,
     "attackWidth": 88.3,
     "attackHeight": 95.1,
@@ -218,7 +189,7 @@
     "attackOffsetY": -15.48,
     "attackDamage": 1,
     "attackInterval": 1,
-    "hitTime": 0.4,
+    "hitTime": 0.28,
     "moveSpeed": 100,
     "stopDistance": 78,
     "maxHealth": 1,
@@ -226,12 +197,13 @@
     "hurtHeight": 84,
     "_id": "",
     "hurtOffsetY": -5,
-    "idleClip": {
-      "__uuid__": "d77f4e1b-39b1-408d-b5c9-08264b29580f",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "idleClip": null,
     "preserveAttackSize": true,
-    "deathVisualSize": 0
+    "deathVisualSize": 0,
+    "crabSkeleton": {
+      "__uuid__": "ffce6ffa-076b-4990-b302-e7815e334172",
+      "__expectedType__": "sp.SkeletonData"
+    }
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -508,34 +480,14 @@
     "node": {
       "__id__": 17
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 24
     },
     "_id": "",
     "playOnLoad": false,
-    "_clips": [
-      {
-        "__uuid__": "d77f4e1b-39b1-408d-b5c9-08264b29580f",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "8dbec1ad-142a-412e-949c-41e95e5eb9b4",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "66f79ffb-e111-49e9-80b2-32677f99b017",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "341e4ebc-d135-4b39-ab82-a88818b0f895",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "d77f4e1b-39b1-408d-b5c9-08264b29580f",
-      "__expectedType__": "cc.AnimationClip"
-    }
+    "_clips": [],
+    "_defaultClip": null
   },
   {
     "__type__": "cc.CompPrefabInfo",

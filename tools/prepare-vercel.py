@@ -12,6 +12,7 @@ import sys
 import base64
 import hashlib
 import re
+import gzip
 
 project = Path(__file__).resolve().parents[1]
 source = project / 'build/web-mobile'
@@ -113,11 +114,11 @@ if ffmpeg_files:
 # before the game bootstrap, after SystemJS and its import map are available.
 html = (optimized/'index.html').read_text(encoding='utf-8')
 html = html.replace('<script src="./loading/loading.js"></script>', '')
-loader = (optimized/'loading/loading.js').read_text(encoding='utf-8')
+loader = (project/'build-templates/web-mobile/loading/loading.js').read_text(encoding='utf-8')
 loader = loader.replace('const splash =', "function notify(type,value){if(parent!==window)parent.postMessage({type,value},location.origin);}\n  const splash =")
 loader = loader.replace('if (text) message.textContent = text;', "if (text) message.textContent = text; notify('undersea-progress',progress);")
 loader = loader.replace("update(100, '准备出发！'); completed", "update(100, '准备出发！'); window.__underseaReady=true;console.debug('__UNDERSEA_READY__');notify('undersea-ready'); completed")
-loader = loader.replace("message.textContent = '加载失败，请刷新重试';", "notify('undersea-error'); message.textContent = '加载失败，请刷新重试';")
+loader = loader.replace("message.textContent = '资源加载失败';", "notify('undersea-error'); message.textContent = '资源加载失败';")
 loader = loader.replace('error => error ? reject(error) : resolve()', "error => { if(error) reject(error); else {window.__underseaPreloaded=true;console.debug('__UNDERSEA_PRELOADED__');resolve();} }")
 loader = loader.replace('let completed =', 'window.underseaBoot={start:performance.now()};let completed =')
 loader = loader.replace("then(cc => {", "then(cc => {window.underseaBoot.ccImported=performance.now();")
@@ -131,7 +132,11 @@ html = html.replace('<head>', '<head><link rel="icon" href="data:,">')
 (optimized/'index.html').write_text(html,encoding='utf-8')
 compact = project/'build/undersea-adventure-compact.html'
 subprocess.run([node, str(project/'tools/pack-single-html.cjs'), str(optimized), str(compact)],check=True)
-subprocess.run([node, str(project/'tools/pack-fast-start.cjs'), str(optimized)],check=True)
+# Download every packed resource before creating the game iframe. The engine
+# preload delegate also resolves all pet, Boss and hero animation dependencies.
+complete_html = compact.read_text(encoding='utf-8').replace('<head>', '<head><base href="__GAME_BASE__">', 1)
+(optimized/'startup.html.gz').write_bytes(gzip.compress(complete_html.encode(),compresslevel=9,mtime=0))
+(optimized/'complete.html').write_text(complete_html.replace('__GAME_BASE__','./'),encoding='utf-8')
 
 digest = hashlib.sha256()
 for file in sorted(optimized.rglob('*')):
@@ -154,32 +159,29 @@ shell = '''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <title>海底冒险</title><link rel="icon" href="data:,"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#032b45}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;visibility:hidden}
-#retry{display:none;margin:14px auto 0;padding:10px 24px;border:1px solid #a5f7ef;border-radius:22px;background:#087c95;color:white;cursor:pointer}
 __CSS__
-</style></head><body>__BODY__<button id="retry">重新加载</button>
+</style></head><body>__BODY__
 <iframe id="game" title="海底冒险游戏" allow="autoplay; fullscreen"></iframe>
 <script>
 (() => {
- const frame=document.getElementById('game'),splash=document.getElementById('splash'),retry=document.getElementById('retry');
+ const frame=document.getElementById('game'),splash=document.getElementById('splash');
  const message=document.getElementById('loading-message'),percent=document.getElementById('loading-percent');
  const bar=splash.querySelector('.progress-bar span'),meter=splash.querySelector('[role="progressbar"]');
- splash.querySelector('main').append(retry);
- let ready=false,timer,lastProgress=0,attempt=0,gameURL;
- function fail(){if(ready)return;message.textContent='加载较慢，请检查网络或重试';retry.style.display='block';}
- async function start(){window.underseaTimings={start:performance.now()};const current=++attempt;ready=false;lastProgress=0;splash.style.display='flex';frame.style.visibility='hidden';retry.style.display='none';
+ let ready=false,lastProgress=0,gameURL;
+ function fail(){if(ready)return;message.textContent='资源加载失败';}
+ async function start(){window.underseaTimings={start:performance.now()};ready=false;lastProgress=0;splash.style.display='flex';frame.style.visibility='hidden';
   message.textContent='正在加载海底世界…';percent.textContent='0%';bar.style.width='0%';
-  clearTimeout(timer);timer=setTimeout(fail,30000);
   try {
-   if(!('DecompressionStream' in window)){frame.src='./__RELEASE__/index.html';return;}
+   if(!('DecompressionStream' in window)){frame.src='./__RELEASE__/complete.html';return;}
    const response=await fetch('./__RELEASE__/startup.html.gz');window.underseaTimings.headers=performance.now();if(!response.ok)throw Error('startup download');
    const total=Number(response.headers.get('Content-Length')),reader=response.body.getReader();let loaded=0;
    const stream=new ReadableStream({async pull(controller){const item=await reader.read();if(item.done){window.underseaTimings.download=performance.now();controller.close();return;}
-    loaded+=item.value.byteLength;if(current===attempt&&total){const value=Math.min(85,Math.round(loaded/total*85));percent.textContent=value+'%';bar.style.width=value+'%';}
+    loaded+=item.value.byteLength;if(total){const value=Math.min(85,Math.round(loaded/total*85));percent.textContent=value+'%';bar.style.width=value+'%';}
     controller.enqueue(item.value);}});
-   const text=await new Response(stream.pipeThrough(new DecompressionStream('gzip'))).text();window.underseaTimings.decoded=performance.now();if(current!==attempt)return;
+   const text=await new Response(stream.pipeThrough(new DecompressionStream('gzip'))).text();window.underseaTimings.decoded=performance.now();
    const base=new URL('./__RELEASE__/',location.href).href;
    if(gameURL)URL.revokeObjectURL(gameURL);gameURL=URL.createObjectURL(new Blob([text.replace('__GAME_BASE__',base)],{type:'text/html'}));frame.src=gameURL;
-  }catch(error){if(current===attempt){console.error(error);fail();}}
+  }catch(error){console.error(error);fail();}
  }
  addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;
@@ -188,10 +190,9 @@ __CSS__
    lastProgress=Math.round(lastProgress);
    percent.textContent=lastProgress+'%';bar.style.width=lastProgress+'%';meter.setAttribute('aria-valuenow',String(lastProgress));
   }else if(event.data.type==='undersea-ready'){
-   ready=true;window.underseaTimings.ready=performance.now();clearTimeout(timer);frame.style.visibility='visible';splash.style.display='none';
+   ready=true;window.underseaTimings.ready=performance.now();frame.style.visibility='visible';splash.style.display='none';
   }else if(event.data.type==='undersea-error')fail();
  });
- retry.onclick=()=>{frame.src='about:blank';requestAnimationFrame(start);};
  requestAnimationFrame(()=>requestAnimationFrame(start));
 })();
 </script></body></html>'''

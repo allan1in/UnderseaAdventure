@@ -1,6 +1,7 @@
 import { _decorator, Button, Component, director, Director, Node, sp, Sprite, SpriteFrame, UITransform } from 'cc';
 import { PET_CATALOG, PetSystem } from './PetSystem';
 import { SoundEffects } from './SoundEffects';
+import { PetFollower } from './PetFollower';
 
 const { ccclass, property } = _decorator;
 
@@ -66,6 +67,28 @@ export class PetSelection extends Component {
         const renderer = preview?.getComponent(Sprite);
         const cardRenderer = card.getComponent(Sprite);
         if (cardRenderer && this.themeCardFrames[index]) cardRenderer.spriteFrame = this.themeCardFrames[index];
+        const follower = this.petSystem?.petPrefabs[index]?.data.getComponent(PetFollower);
+        const petRig = follower?.petSkeleton;
+        const oldSkeleton = preview?.getComponent(sp.Skeleton);
+        let rigView = preview?.getChildByName('Rig');
+        if (petRig && preview) {
+            if (renderer) renderer.enabled = false;
+            if (oldSkeleton) oldSkeleton.enabled = false;
+            if (!rigView) { rigView = new Node('Rig'); rigView.layer = preview.layer; preview.addChild(rigView); rigView.addComponent(UITransform); }
+            rigView.active = true;
+            const skeleton = rigView.getComponent(sp.Skeleton) ?? rigView.addComponent(sp.Skeleton);
+            skeleton.enabled = true; skeleton.premultipliedAlpha = false; skeleton.skeletonData = petRig;
+            // 按每只宠物的可见轮廓适配卡片，忽略贴图透明留白。
+            const fit = Math.max(1, this.cardPetSize) / Math.max(1, follower?.skeletonCardSize ?? 167);
+            preview.setScale(fit, fit, 1);
+            preview.setPosition((follower?.skeletonCardOffsetX ?? -10) * fit, (follower?.skeletonCardOffsetY ?? 7) * fit, 0);
+            skeleton.setAnimation(0, 'Idle', true); skeleton.updateAnimation(0);
+            const button = card.getComponent(Button); if (button) button.interactable = true;
+            return;
+        }
+        if (rigView) rigView.active = false;
+        if (oldSkeleton) oldSkeleton.enabled = false;
+        if (renderer) renderer.enabled = true;
         if (preview && renderer && themeFrame && sourcePicture) {
             renderer.spriteFrame = themeFrame;
             renderer.sizeMode = Sprite.SizeMode.CUSTOM;
@@ -120,7 +143,12 @@ export class PetSelection extends Component {
         this.lastTick = now;
         // director.pause 冻结战斗；绘制前仅更新卡牌 UI，不推进世界中的宠物。
         if (director.isPaused()) for (const card of [this.leftCard, this.rightCard]) {
-            if (card?.active) card.getChildByName('Pet')?.getComponent(sp.Skeleton)?.updateAnimation(elapsed);
+            if (card?.active) {
+                const preview = card.getChildByName('Pet');
+                const rigView = preview?.getChildByName('Rig');
+                const skeleton = rigView?.active ? rigView.getComponent(sp.Skeleton) : preview?.getComponent(sp.Skeleton);
+                skeleton?.updateAnimation(elapsed);
+            }
         }
         const canvas = this.node.getComponent(UITransform);
         if (this.panel && canvas) {

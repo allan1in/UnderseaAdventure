@@ -1,0 +1,113 @@
+// Preview only: reuse approved cutout textures, without changing runtime assets.
+const fs=require('fs'),path=require('path');
+const {createCanvas,loadImage}=require('C:/Users/LIN/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
+const project=path.resolve(__dirname,'..'),theme=path.join(project,'../主题素材/海底冒险');
+const source=path.join(theme,'textures/characters/hero/animations/stage-04/skeleton-rig');
+const out=path.join(theme,'previews/hero-stage04-sword-keyframes-v3');fs.mkdirSync(out,{recursive:true});
+const rig=JSON.parse(fs.readFileSync(path.join(theme,'previews/hero-stage01-sword-keyframes-v3/poses.json'),'utf8')).rig;
+const bones=Object.fromEntries(rig.bones.map(b=>[b.name,b])),attachments=rig.skins[0].attachments;
+function bone(name,settings){Object.assign(bones[name],settings)}
+function part(name,settings){Object.assign(attachments[name][name],settings)}
+bone('body',{rotation:-22});bone('head',{x:13,y:23,rotation:22});bone('backpack',{x:-25,y:-5,rotation:0});
+part('head',{width:140,height:133,x:0,y:43});part('torso',{width:51,height:59,x:0,y:-5});part('backpack',{width:49,height:67});
+rig.bones.splice(2,0,{name:'cape',parent:'body',x:-18,y:7,rotation:22});bones.cape=rig.bones[2];rig.slots.unshift({name:'cape',bone:'cape',attachment:'cape'});attachments.cape={cape:{path:'cape',width:88,height:57,x:-34,y:-14}};
+for(const side of ['near','far']){
+ const n=side==='near';
+ bone(side+'-upper-arm',{x:n?-17:13,y:n?5:6,rotation:n?-10:-8,length:18});
+ bone(side+'-forearm',{x:18,y:0,rotation:n?35:38,length:15});
+ bone(side+'-hand',{x:15,y:0,rotation:n?-3:-8});
+ part(side+'-upper-arm',{width:n?30:27,height:n?23:20,x:9,y:0});
+ part(side+'-forearm',{width:n?25:22,height:n?18:16,x:8,y:0});
+ part(side+'-hand',{width:n?25:22,height:n?20:18,x:9,y:0});
+ bone(side+'-thigh',{x:n?-14:8,y:n?-22:-24,rotation:n?-100:-110,length:16});
+ bone(side+'-shin',{x:16,y:0,rotation:n?-35:-30,length:13});
+ bone(side+'-boot',{x:13,y:0,rotation:90});
+ part(side+'-thigh',{width:n?27:24,height:n?28:25,x:8,y:0,rotation:90});
+ part(side+'-shin',{width:n?21:19,height:n?23:21,x:7,y:0,rotation:90});
+ part(side+'-boot',{width:n?30:27,height:n?20:18,x:3,y:-6,rotation:0});
+}
+// Calibrate from the actual socket centers in the new artwork, rather than
+// reusing the first-form texture centers. Both endpoints lie on the bone axis.
+function alignSegment(name,width,height,start,end,flip=false){
+ const sx=(start[0]-.5)*width,sy=(.5-start[1])*height;
+ const ex=(end[0]-.5)*width,ey=(.5-end[1])*height;
+ const angle=-Math.atan2(ey-sy,ex-sx),c=Math.cos(angle),s=Math.sin(angle);
+ part(name,{width,height,x:-(sx*c-sy*s),y:-(sx*s+sy*c),rotation:angle*180/Math.PI,scaleX:flip?-1:1});
+ return Math.hypot(ex-sx,ey-sy);
+}
+for(const side of ['near','far']){
+ const near=side==='near';
+ const length=alignSegment(side+'-upper-arm',27,20,near?[.15,.68]:[.09,.39],near?[.92,.52]:[.83,.80],false);
+ bone(side+'-forearm',{x:length,y:0});bone(side+'-upper-arm',{length});
+ const foreLength=alignSegment(side+'-forearm',22,16,[.18,.5],[.89,.5]);
+ bone(side+'-hand',{x:foreLength,y:0});bone(side+'-forearm',{length:foreLength});
+}
+bone('far-upper-arm',{rotation:-30});bone('far-forearm',{rotation:60});
+
+const poses=[
+ {action:'Idle',title:'待机',time:0,rot:{}},
+ {action:'Idle',title:'吸气上浮',time:.6,rot:{body:1,head:-1,'near-forearm':2,'near-thigh':2},rootY:1.2},
+ {action:'Idle',title:'轻摆',time:1.2,rot:{body:0,head:0,'near-forearm':0,'near-thigh':0}},
+ {action:'Idle',title:'呼气回落',time:1.8,rot:{body:-1,head:1,'far-forearm':2,'far-thigh':2},rootY:-1.2},
+ {action:'Idle',title:'回到中心',time:2.1,rot:{body:-.5,head:.5}},
+ {action:'Idle',title:'循环衔接',time:2.4,rot:{}},
+ {action:'Move',title:'收腿准备',time:0,rot:{'near-thigh':8,'near-shin':-10,'far-thigh':-8,'far-shin':8,'near-upper-arm':-4,'near-forearm':5}},
+ {action:'Move',title:'开始划水',time:.2,rot:{body:2,head:-2,'near-thigh':0,'near-shin':0,'far-thigh':0,'far-shin':0,'near-upper-arm':2,'near-forearm':-4},rootY:1},
+ {action:'Move',title:'蹬腿推进',time:.4,rot:{body:3,head:-3,'near-thigh':-15,'near-shin':8,'far-thigh':12,'far-shin':-10,'near-upper-arm':6,'near-forearm':-8},rootY:2},
+ {action:'Move',title:'换腿回收',time:.6,rot:{body:0,head:0,'near-thigh':-8,'near-shin':6,'far-thigh':8,'far-shin':-8}},
+ {action:'Move',title:'反侧推进',time:.8,rot:{body:-2,head:2,'near-thigh':12,'near-shin':-12,'far-thigh':-15,'far-shin':8,'far-upper-arm':6,'far-forearm':-8},rootY:-1},
+ {action:'Move',title:'回到起势',time:1.2,rot:{'near-thigh':8,'near-shin':-10,'far-thigh':-8,'far-shin':8,'near-upper-arm':-4,'near-forearm':5}},
+ {action:'Attack',title:'持剑起手',time:0,swordAngle:10,rot:{}},
+ {action:'Attack',title:'抬剑蓄力',time:.08,swordAngle:80,rot:{body:-3,head:3,'near-upper-arm':18,'near-forearm':20,'near-hand':-10,'far-forearm':10}},
+ {action:'Attack',title:'挥剑下劈',time:.15,swordAngle:40,rot:{body:-1,head:1,'near-upper-arm':25,'near-forearm':-5,'near-hand':-20}},
+ {action:'Attack',title:'斩击命中',time:.205,swordAngle:-20,rot:{body:4,head:-4,'near-upper-arm':28,'near-forearm':-25,'near-hand':-3,'near-thigh':-4,'far-forearm':10},rootX:2},
+ {action:'Attack',title:'挥剑收势',time:.32,swordAngle:-55,rot:{body:2,head:-2,'near-upper-arm':-5,'near-forearm':-15,'near-hand':-30}},
+ {action:'Attack',title:'恢复持剑',time:.48,swordAngle:10,rot:{}}
+];
+// Angles are authored for the shoulder/elbow chain. The blade stays fixed
+// perpendicular to the glove grip; it never rotates independently of the wrist.
+const attackArms = [
+ {upper:-70,fore:-25,blade:35},
+ {upper:-10,fore:45,blade:105},
+ {upper:-50,fore:0,blade:60},
+ {upper:-95,fore:-55,blade:5},
+ {upper:-80,fore:-40,blade:20},
+ {upper:-70,fore:-25,blade:35}
+];
+let attackIndex=0;
+for(const pose of poses){
+ pose.rot.cape=pose.action==='Move'?Math.sin(pose.time/1.2*Math.PI*2)*5:pose.action==='Idle'?Math.sin(pose.time/2.4*Math.PI*2)*2:Math.sin(pose.time/.48*Math.PI*2)*3;
+ if(pose.action!=='Attack'){pose.rot['near-upper-arm']=(pose.rot['near-upper-arm']||0)-38;pose.rot['near-forearm']=(pose.rot['near-forearm']||0)+10;}
+ const body=bones.body.rotation+(pose.rot.body||0);
+ if(pose.action==='Attack'){
+  const arm=attackArms[attackIndex++];
+  pose.rot['near-upper-arm']=arm.upper-body-bones['near-upper-arm'].rotation;
+  pose.rot['near-forearm']=arm.fore-arm.upper-bones['near-forearm'].rotation;
+  pose.swordAngle=arm.blade;
+ }
+ const fore=body+bones['near-upper-arm'].rotation+(pose.rot['near-upper-arm']||0)+bones['near-forearm'].rotation+(pose.rot['near-forearm']||0);
+ pose.rot['near-hand']=(pose.swordAngle??35)-60-fore-bones['near-hand'].rotation;
+ const wrist=bones['near-hand'].rotation+pose.rot['near-hand'];
+ const elbow=bones['near-forearm'].rotation+(pose.rot['near-forearm']||0);
+ if(Math.abs(wrist)>35||elbow<30||elbow>100)throw new Error('Unsafe arm bend: '+pose.title);
+}
+function world(pose){const result={};for(const b of rig.bones){const p=result[b.parent]||{x:0,y:0,a:0},r=p.a*Math.PI/180;const x=(b.x||0)+(b.name==='root'?(pose.rootX||0):0),y=(b.y||0)+(b.name==='root'?(pose.rootY||0):0);result[b.name]={x:p.x+x*Math.cos(r)-y*Math.sin(r),y:p.y+x*Math.sin(r)+y*Math.cos(r),a:p.a+(b.rotation||0)+(pose.rot[b.name]||0)}}return result}
+(async()=>{const sword=await loadImage(path.join(source,'sword-stage04.png'));const partFiles=Object.fromEntries(rig.slots.map(s=>[s.name,s.name+(s.name.endsWith('-forearm')?'-v3':s.name.endsWith('-hand')?'-v2':'')+'.png']));const art={};for(const s of rig.slots)art[s.name]=await loadImage(path.join(source,partFiles[s.name]));
+ const partsSheet=createCanvas(1200,1500),pc=partsSheet.getContext('2d');pc.fillStyle='#e7f2f6';pc.fillRect(0,0,1200,1500);
+ const entries=[...rig.slots.map(s=>({name:s.name,img:art[s.name]})),{name:'sword-stage04',img:sword}];
+ entries.forEach((e,i)=>{const x=i%4*300,y=Math.floor(i/4)*300,k=Math.min(240/e.img.width,240/e.img.height);pc.fillStyle='#fff';pc.fillRect(x+5,y+5,290,290);pc.fillStyle='#174657';pc.font='18px sans-serif';pc.fillText(e.name,x+14,y+28);pc.drawImage(e.img,x+(300-e.img.width*k)/2,y+42+(245-e.img.height*k)/2,e.img.width*k,e.img.height*k);});
+ fs.writeFileSync(path.join(out,'parts-sheet.png'),partsSheet.toBuffer('image/png'));
+ const sheet=createCanvas(2160,1110),ctx=sheet.getContext('2d');ctx.fillStyle='#e7f2f6';ctx.fillRect(0,0,sheet.width,sheet.height);
+ const reference=await loadImage(path.join(theme,'textures/characters/hero/animations/stage-04/swim/swim-01.png'));
+ const comparison=createCanvas(1000,470),cx=comparison.getContext('2d');cx.fillStyle='#e7f2f6';cx.fillRect(0,0,1000,470);
+ function render(context,pose,x,y,scale){const w=world(pose);context.save();context.translate(x,y);context.scale(scale,-scale);for(const s of rig.slots){const b=w[s.bone],a=attachments[s.name][s.attachment];if(s.name==='near-hand'){const r=b.a*Math.PI/180,gx=b.x+9*Math.cos(r),gy=b.y+9*Math.sin(r);context.save();context.translate(gx,gy);context.rotate((b.a-30)*Math.PI/180);context.scale(1,-1);const sh=112,sw=sh*sword.width/sword.height;context.drawImage(sword,-sw/2,-sh*.9,sw,sh);context.restore()}context.save();context.translate(b.x,b.y);context.rotate(b.a*Math.PI/180);context.translate(a.x||0,a.y||0);context.rotate((a.rotation||0)*Math.PI/180);context.scale(a.scaleX||1,-1);context.drawImage(art[s.name],-a.width/2,-a.height/2,a.width,a.height);context.restore()}context.restore()}
+ for(let i=0;i<poses.length;i++){const p=poses[i],col=i%6,row=Math.floor(i/6),x=col*360,y=row*370;
+  ctx.fillStyle='#fff';ctx.fillRect(x+8,y+8,344,354);ctx.fillStyle='#174657';ctx.font='bold 20px sans-serif';ctx.fillText(`${p.action} ${String(i%6+1).padStart(2,'0')} · ${p.time}s`,x+20,y+38);ctx.font='18px sans-serif';ctx.fillText(p.title,x+20,y+65);
+  render(ctx,p,x+164,y+254,1.55);
+  const image=createCanvas(384,384),ic=image.getContext('2d');render(ic,p,168,263,1.65);fs.writeFileSync(path.join(out,`${p.action.toLowerCase()}-${String(i%6+1).padStart(2,'0')}.png`),image.toBuffer('image/png'));
+ }
+ cx.fillStyle='#174657';cx.font='24px sans-serif';cx.fillText('原游泳帧 / Original',50,40);cx.fillText('调整后的部件拼接 / Stage 04',510,40);cx.drawImage(reference,10,65,440,440);render(cx,poses[0],690,325,1.48);
+ const strip=createCanvas(2160,370);strip.getContext('2d').drawImage(sheet,0,740,2160,370,0,0,2160,370);fs.writeFileSync(path.join(out,'attack-keyframes.png'),strip.toBuffer('image/png'));fs.writeFileSync(path.join(out,'keyframes-sheet.png'),sheet.toBuffer('image/png'));fs.writeFileSync(path.join(out,'proportion-comparison.png'),comparison.toBuffer('image/png'));
+ fs.writeFileSync(path.join(out,'poses.json'),JSON.stringify({previewOnly:true,sourceParts:source,partFiles,sword:{file:'sword-stage04.png',gripPivot:[0.5,0.9],displayHeight:112,handAngleOffset:60},rig,poses},null,2));
+ console.log(JSON.stringify({output:out,keyframes:poses.length,previewOnly:true}));
+})().catch(e=>{console.error(e);process.exitCode=1});

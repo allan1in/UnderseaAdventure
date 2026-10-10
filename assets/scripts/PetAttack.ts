@@ -54,8 +54,9 @@ export class PetAttack extends Component {
             - Math.hypot(b.node.position.x - position.x, b.node.position.y - position.y));
         if (!targets.length) return;
         const animation = this.getComponent(CharacterAnimation);
-        this.cooldown = Math.max(.01, this.attackInterval, animation?.duration('attack') ?? 0);
-        animation?.show('attack', true);
+        const duration = this.follower?.playAttack() ?? 0;
+        this.cooldown = Math.max(.01, this.attackInterval, duration, animation?.enabled ? animation.duration('attack') : 0);
+        if (animation?.enabled) animation.show('attack', true);
         if (Math.hypot(hero.position.x - position.x, hero.position.y - position.y) <= this.follower!.idleRange + .01) {
             const visual = this.node.getChildByName('Visual'), dx = targets[0].node.position.x - position.x;
             if (visual && Math.abs(dx) > .01) visual.setScale(dx < 0 ? -1 : 1, 1, 1);

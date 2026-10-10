@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, sp, UITransform, Vec2 } from 'cc';
+import { _decorator, Animation, Component, Node, sp, UITransform, Vec2 } from 'cc';
 import { HeroHealth } from './HeroHealth';
 import { CircleBody2D } from './CircleBody2D';
 import { CharacterAnimation } from './CharacterAnimation';
@@ -8,6 +8,14 @@ const { ccclass, property, requireComponent } = _decorator;
 @ccclass('PetFollower')
 @requireComponent(CircleBody2D)
 export class PetFollower extends Component {
+    @property(sp.SkeletonData) petSkeleton: sp.SkeletonData | null = null;
+    @property skeletonScale = .8;
+    @property skeletonOffsetX = -6;
+    @property skeletonOffsetY = -8;
+    @property skeletonCardSize = 167;
+    @property skeletonCardOffsetX = -10;
+    @property skeletonCardOffsetY = 7;
+    private attackRemaining = 0;
     @property(Node)
     target: Node | null = null;
 
@@ -39,17 +47,34 @@ export class PetFollower extends Component {
         this.body = this.getComponent(CircleBody2D);
         if (this.body) { this.body.collisionGroup = 2; this.body.collisionMask = 2; }
         this.skeleton = this.visual?.getChildByName('Spine')?.getComponent(sp.Skeleton) ?? null;
+        if (this.petSkeleton && this.visual) {
+            const legacy = this.getComponent(CharacterAnimation);
+            if (legacy) legacy.enabled = false;
+            const picture = this.visual.getChildByName('Sprite');
+            picture?.getComponent(Animation)?.stop();
+            if (picture) picture.active = false;
+            let spine = this.visual.getChildByName('Spine');
+            if (!spine) { spine = new Node('Spine'); spine.layer = this.node.layer; this.visual.addChild(spine); spine.addComponent(UITransform); }
+            spine.setPosition(this.skeletonOffsetX, this.skeletonOffsetY, 0);
+            spine.setScale(this.skeletonScale, this.skeletonScale, 1);
+            this.skeleton = spine.getComponent(sp.Skeleton) ?? spine.addComponent(sp.Skeleton);
+            this.skeleton.premultipliedAlpha = false;
+            this.skeleton.skeletonData = this.petSkeleton;
+            this.skeleton.setMix('Idle', 'Move', .08); this.skeleton.setMix('Move', 'Idle', .08);
+            this.playAnimation(false);
+        }
         // 原贴图是普通 Alpha；透明像素的 RGB 非零，不能按预乘 Alpha 混合。
         if (this.skeleton) this.skeleton.premultipliedAlpha = false;
         this.keepInsideMap();
     }
 
     update(deltaTime: number): void {
+        this.attackRemaining = Math.max(0, this.attackRemaining - Math.max(0, deltaTime));
         const target = this.target;
         if (!target?.isValid || !target.activeInHierarchy || target.parent !== this.node.parent) return;
         const health = target.getComponent(HeroHealth);
         if (health && !health.isAlive) { this.playAnimation(false); return; }
-        if (this.getComponent(CharacterAnimation)?.isAttacking) return;
+        if (this.attackRemaining > 0 || (this.getComponent(CharacterAnimation)?.enabled && this.getComponent(CharacterAnimation)?.isAttacking)) return;
         const dx = target.position.x - this.node.position.x;
         const dy = target.position.y - this.node.position.y;
         const distance = Math.hypot(dx, dy);
@@ -91,7 +116,7 @@ export class PetFollower extends Component {
 
     private playAnimation(moving: boolean): void {
         const pictureAnimation = this.getComponent(CharacterAnimation);
-        if (pictureAnimation) { pictureAnimation.setMoving(moving); return; }
+        if (pictureAnimation?.enabled) { pictureAnimation.setMoving(moving); return; }
         const skeleton = this.skeleton;
         if (!skeleton?.skeletonData) return;
         // 蓝龙原资源只有 Idle；其他三只保留原 Move 动画。
@@ -100,6 +125,14 @@ export class PetFollower extends Component {
         if (name === this.animationName) return;
         skeleton.setAnimation(0, name, true);
         this.animationName = name;
+    }
+
+    playAttack(): number {
+        if (!this.petSkeleton || !this.skeleton) return 0;
+        this.attackRemaining = this.skeleton.findAnimation('Attack')?.duration ?? .68;
+        this.skeleton.setAnimation(0, 'Attack', false);
+        this.animationName = 'Attack';
+        return this.attackRemaining;
     }
 
     private keepInsideMap(): void {

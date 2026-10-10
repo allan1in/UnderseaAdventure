@@ -1,3 +1,4 @@
+#splash.undersea-loading:not(.loading-complete) { display: flex !important; }
 #splash.undersea-loading {
   position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; visibility: visible;
   display: flex; align-items: center; justify-content: center; overflow: hidden;

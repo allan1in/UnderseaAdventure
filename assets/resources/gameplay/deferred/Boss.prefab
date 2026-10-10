@@ -362,26 +362,18 @@
     "visual": {
       "__id__": 5
     },
-    "movementTexture": {
-      "__uuid__": "f55db5b5-9cad-4282-9813-cb8efe6f1d97@6c48a",
-      "__expectedType__": "cc.Texture2D"
-    },
-    "movementIndex": {
-      "__uuid__": "5b875be1-000d-4107-a116-1f06350178ed",
-      "__expectedType__": "cc.JsonAsset"
-    },
-    "combatTexture": {
-      "__uuid__": "4871de24-abcf-4cef-b4c7-e95a6d16e08b@6c48a",
-      "__expectedType__": "cc.Texture2D"
-    },
-    "combatIndex": {
-      "__uuid__": "96679692-de93-4c5f-b49e-93c6f78e8472",
-      "__expectedType__": "cc.JsonAsset"
-    },
+    "movementTexture": null,
+    "movementIndex": null,
+    "combatTexture": null,
+    "combatIndex": null,
     "visualScale": 1.5,
     "frameInterval": 0.03333333333333333,
     "_id": "",
-    "themeFrame": null
+    "themeFrame": null,
+    "bossSkeleton": {
+      "__uuid__": "eafd3e55-4f54-4ae1-b984-6bec2543ff55",
+      "__expectedType__": "sp.SkeletonData"
+    }
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -421,7 +413,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 390,
+      "y": 210,
       "z": 0
     },
     "_lrot": {
@@ -751,13 +743,16 @@
     },
     "_id": "",
     "healthBarOffsetX": 0,
-    "healthBarOffsetY": 390,
+    "healthBarOffsetY": 210,
     "hurtWidth": 330,
     "hurtHeight": 300,
     "hurtOffsetX": 0,
     "hurtOffsetY": -5,
     "rangedInterval": 3,
-    "rangedRange": 700
+    "rangedRange": 700,
+    "bodyRadiusX": 100,
+    "bodyRadiusY": 55,
+    "bodyOffsetY": -50
   },
   {
     "__type__": "cc.CompPrefabInfo",
@@ -1064,29 +1059,13 @@
     "node": {
       "__id__": 9
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 48
     },
     "_id": "",
-    "_clips": [
-      {
-        "__uuid__": "573d3938-2623-4e9b-aa35-463b68a1f6aa",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "70757835-b9ec-46e1-9140-d96e29f87726",
-        "__expectedType__": "cc.AnimationClip"
-      },
-      {
-        "__uuid__": "fbeea33e-5464-4e5a-aa34-6e87b03db0e5",
-        "__expectedType__": "cc.AnimationClip"
-      }
-    ],
-    "_defaultClip": {
-      "__uuid__": "573d3938-2623-4e9b-aa35-463b68a1f6aa",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_clips": [],
+    "_defaultClip": null,
     "playOnLoad": false
   },
   {
@@ -1101,7 +1080,7 @@
     "node": {
       "__id__": 1
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 50
     },
@@ -1109,18 +1088,9 @@
     "animation": {
       "__id__": 47
     },
-    "idleClip": {
-      "__uuid__": "573d3938-2623-4e9b-aa35-463b68a1f6aa",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "moveClip": {
-      "__uuid__": "70757835-b9ec-46e1-9140-d96e29f87726",
-      "__expectedType__": "cc.AnimationClip"
-    },
-    "attackClip": {
-      "__uuid__": "fbeea33e-5464-4e5a-aa34-6e87b03db0e5",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "idleClip": null,
+    "moveClip": null,
+    "attackClip": null,
     "blendActions": false
   },
   {

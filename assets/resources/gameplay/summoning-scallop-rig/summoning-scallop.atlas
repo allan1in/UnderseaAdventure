@@ -1,0 +1,33 @@
+summoning-scallop.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+upper-shell
+  rotate: false
+  xy: 4,4
+  size: 420,272
+  orig: 420,272
+  offset: 0,0
+  index: -1
+lower-shell
+  rotate: false
+  xy: 432,4
+  size: 420,200
+  orig: 420,200
+  offset: 0,0
+  index: -1
+pearl
+  rotate: false
+  xy: 4,284
+  size: 374,366
+  orig: 374,366
+  offset: 0,0
+  index: -1
+pedestal
+  rotate: false
+  xy: 386,284
+  size: 420,232
+  orig: 420,232
+  offset: 0,0
+  index: -1

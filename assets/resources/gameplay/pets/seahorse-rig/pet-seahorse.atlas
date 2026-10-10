@@ -1,0 +1,12 @@
+pet-seahorse.png
+size: 336,336
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pet-seahorse
+  rotate: false
+  xy: 0,0
+  size: 336,336
+  orig: 336,336
+  offset: 0,0
+  index: -1

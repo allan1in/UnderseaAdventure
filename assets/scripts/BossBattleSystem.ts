@@ -70,6 +70,7 @@ export class BossBattleSystem extends Component {
         const boss = node.getComponent(BossController);
         if (!boss) { node.destroy(); return; }
         boss.target = this.hero; boss.ground = this.ground; this.node.addChild(node);
+        const body = boss.configureBody();
         const viewport = this.node.parent?.getComponent(UITransform);
         const distance = Math.max(250, viewport?.height ?? 720);
         // 原 Boss 从远处被移到英雄一屏高附近；当前地图四角较近，优先使用有空位的方向。
@@ -79,6 +80,7 @@ export class BossBattleSystem extends Component {
             const point = boss.clampToMap(this.hero.position.x + Math.cos(angle) * radius,
                 this.hero.position.y + Math.sin(angle) * radius);
             if (Math.hypot(point.x - this.hero.position.x, point.y - this.hero.position.y) < 220) continue;
+            if (!body.canOccupy(point.x, point.y)) continue;
             node.setPosition(point.x, point.y); found = true; break;
         }
         if (!found) { node.destroy(); return; }

@@ -3,11 +3,78 @@
 - 不到万不得已，不要使用 computer use。
 - 仅修改 UnderseaAdventure；保留原 mushroom 项目。
 - 保留素材 .meta UUID，避免资源引用失效。
+- 用户要求：后续默认不打包，先通过 Cocos 预览检查；仅在用户明确要求时构建打包。
 - 以下内容从原 README 完整迁入，包含历史实现与验证记录。历史状态可能已过时，以当前代码、场景及用户最新要求为准。
 
 ---
 
 ## 当前压缩与线上加载（2026-10-07）
+
+2026-10-10 水母骨骼预览：内置 imagegen 参考原 jellyfish/idle/idle-01.png 生成伞盖带脸/五条触手透明部件图，generation-prompts.json 保存提示词，主题 partners/animations/jellyfish/skeleton-rig 中 pet-jellyfish JSON/atlas/png。6 slots/12 bones，五触手各两骨骼连续加权网格（每条 6×18 网格），根部由完整伞缘遮挡。Idle 3s、Move 1.4s、Attack .72s 收拢蓄力/.36s 释放/恢复，60Hz 平滑采样；18 帧、拆分图和动态 previews/pet-jellyfish-skeleton.html 支持暂停/翻转。check-jellyfish-rig-preview.cjs 循环/恢复、Chrome 动态加载和已打包 Cocos 原生解析三动作通过 errors=[]，native.png 已查看。旧8941服务不可达，当前预览服务8942。未接入游戏、未打包或发布，待用户确认。
+
+2026-10-10 乌龟骨骼接入 Cocos：import-turtle-rig.py 导入 assets/resources/gameplay/pets/turtle-rig 三文件并保持 meta UUID；SkeletonData 3e5aeccc-b13b-4cf3-9440-6c05c844483f 直接关联 PetFox.prefab.PetFollower.petSkeleton，旧 CharacterAnimation/Animation 停用清除 clips。PetFollower 创建 Visual/Spine，位置 (-6,-8)、scale .8，Idle/Move .08 混合，攻击 .68s 单次后恢复，不每帧重启动作。PetAttack 使用骨骼 Attack 保留原范围/冷却/即时伤害与特效逻辑。PetSelection 优先使用 petSkeleton，独立 Pet/Rig 子节点避免同节点 Sprite/Spine 渲染冲突，在卡片循环 Idle 并借用原有暂停 UI tick，145 可见边长；切换其他宠物时禁用骨骼恢复 Sprite。check-turtle-rig-source.cjs 注入当前三源码及新资源到现有原生游戏运行时：旧图片隐藏、Idle/Move 不重启、Attack 单次 10 伤害与一次特效、结束恢复、暂停选卡 Idle trackTime 推进、切回 Sprite 正常通过；errors=[]，temp/verification/turtle-rig/card.png 已查看。TS 通过。测试攻击目标/特效为可计数替身，保留生产逻辑，未验证真实敌人和实体手机；未打包或部署。
+
+2026-10-10 乌龟连续头颈网格预览：用户批准消除头部拼接切线。内置 imagegen 参考原图生成 source-continuous-torso.png，头/短颈/胸腹/龟壳为一张连续贴图，generation-prompts-continuous.json 保存提示词。32×24 网格/1536 三角形，head 与 body 权重通过两轴 smoothstep 过渡；头部不再使用独立 region，四鳍独立，5 slots/7 bones。构建/Canvas 渲染器支持加权 mesh，使用逐像素采样避免三角边缘接缝。18 帧与动态预览更新 continuous3；现有 check-turtle-rig-preview.cjs 循环/恢复、动态加载、原生 Spine 三动作验证 errors=[]，native.png 已查看。仅预览，未接入游戏或打包。
+
+2026-10-10 乌龟接缝修正预览：参考原图，通过内置 imagegen 编辑 source-parts-sheet-v2.png（generation-prompts-v2.json 保存提示词），去除身体圆形接口、减弱鳍脚圆形连接根部，重绘远侧前鳍的内侧奶白腹面；头部下移 8、左移 3，近前鳍根部从 y=-14 改为 2 并由头颈遮挡；远前鳍 x=45/y=-5、基础旋转 15°，朝右下伸展，远鳍根部仍在身体之后。18 帧和动态页面更新，图片 cache 版本 seams2、骨骼 JSON no-store。循环恢复、动态与原生 Spine 三动作测试通过 errors=[]。仅预览，未接入运行时或打包。
+
+2026-10-10 乌龟骨骼预览：内置 imagegen 参考原 turtle/idle/idle-01.png 生成六部件图（首次连接失败后独立重试成功），主题 textures/characters/partners/animations/turtle/skeleton-rig 保存 source-parts-sheet.png、generation-prompts.json、六个透明切片、pet-turtle Spine 3.8 JSON/atlas/1024 贴图。7 bones/6 slots；Idle 3s 轻摆，Move 1.2s 四鳍交替，Attack .68s 抬头蓄力/.36s 远程释放/恢复，60Hz 平滑采样，远程玩法不改。tools/build-turtle-rig-preview.py 与 preview-turtle-rig.cjs 输出 18 帧 keyframes-sheet.png、parts-sheet.png 和 previews/pet-turtle-skeleton.html（暂停/翻转）。check-turtle-rig-preview.cjs 首尾恢复/循环衔接、浏览器动态加载和现有新单 HTML 内原生 Spine 三动画解析/绘制通过 errors=[]，browser.png/native.png 已查看；verification.json 在 previews/pet-turtle-skeleton-v1。当前仅预览，未接入 Cocos 运行时、未重新打包或发布，待确认外观。
+
+2026-10-10 清理与重新打包：clean-unused-assets.py 按场景/Prefab/脚本/当前 resources 根和 UUID 依赖闭包清理 705 个未使用素材，61,729,685 字节（58.87 MiB），同步移除对应 .meta 和空目录；主题源素材目录保留。Boss.prefab 清空旧 dragon 动作纹理/索引，加载模板移除旧 theme-animations 预加载，保留四级骨骼、宠物逐帧与现用特效。清理后序列化 UUID 无缺失，TS 检查通过。当前 Boss 血条高度源码与 Prefab 均为 210。Cocos 3.8.8 构建成功，压缩单文件 build/undersea-adventure-single.html 为 19,519,147 字节（18.61 MiB），上一版本 25,466,465 字节，减少 23.35%；完整资源 gzip 10,967,301 字节（10.46 MiB）。check-single-html.cjs 更新骨骼就绪验收并检查真实离线新包：无外部请求/无错误、输入前不计时不生敌、移动/音乐、招募三宠物/进化四级、Boss 血量与伤害、音乐切换/胜利均通过。报告 build/verification/standalone-report.json；未发布线上或推送。
+
+2026-10-10 Boss 确认后接入 Cocos：tools/import-boss-rig.py 导入 assets/resources/gameplay/boss/original-rig，双纹理、Spine JSON/atlas，骨骼 UUID eafd3e55-4f54-4ae1-b984-6bec2543ff55；deferred/Boss.prefab.bossSkeleton 直接引用，原 Prefab UUID 保留，旧 CharacterAnimation/Animation 停用并清除 clips。BossVisual 创建 Visual/BossSpine，沿用原 Sprite 位置 (-9.0249,22.3105) 与比例 1.50416，隐藏旧图片；Idle/Move 循环不重启，Attack .75s、Cast .8s、Death 1s 单次，Idle/Move 混合 .08s。远程技能触发改为 Cast，近战命中 .3s/5 伤害，血量 200、速度 200、受击范围、远程预警/触手逻辑、无身体阻挡和血条高度保持。死亡 .12s 闭眼、head 下沉、透明度 1，完整结束后单次 defeated 事件并隐藏；受击染色作用 Spine，销毁不触碰已释放的子骨骼。check-boss-rig-source.cjs 将当前两份源码与导入资源载入已有 Cocos 原生运行时，验证初始化、移动无重启、单次近战伤害、攻击恢复、仅 Visual 翻转、血条不翻转、Cast、闭眼/头部下沉/死亡完成前不结算、结束事件一次、延迟销毁无异常通过；report.json/death.png 在 temp/verification/boss-rig，截图已查看。限定 assets/scripts 的 TypeScript 检查通过，新骨骼 UUID 已出现在 library 导入缓存。测试为当前源码注入已有原生运行时，不等同于用户当前编辑器预览或实体手机验证；未打包、部署或推送。
+
+2026-10-10 Boss 死亡按螃蟹逻辑再次修正：取消侧翻，Death .12 秒切换闭眼，头部控制点逐步下沉 17、身体下沉 7，后触手放松下垂，末帧仅 2.5 度轻倾且透明度全程 1。内置 imagegen 编辑原脸部裁片，source-closed-eyes.png 与 generation-prompts-closed-eyes.json 保存；prepare-boss-closed-eyes.py 仅将两处闭眼区域打包回原 320×320 贴图，得到 boss-original-dead.png，王冠、护甲、嘴部和触手的其他像素保留。Spine 新增 head 控制点及 body-dead 附件，双图集页面；其他动作从 0 秒恢复 body-art，防止闭眼附件残留。预览 Canvas 改为逐像素网格采样，避免头部压缩时三角裁剪产生接缝。death-keyframes.png 与动态预览已更新。检查五动作 60Hz 无网格翻折，原生 Death attachment=body-dead、headY 从 14 到 -3、alpha=1，错误为空。当前仍仅预览，未导入游戏或打包。
+
+2026-10-10 Boss 死亡预览重新设计：取消渐隐，改为受击短摆、触手失去支撑向下松弛、身体向右倾倒、落地小幅回摆，1 秒后保留倒地姿态。body 角度 0/7/-9/-38/-64/-60，透明度全程 1，其他四动作保留；原版贴图没有新增闭眼表情。更新 build-boss-original-motion.py 与动态预览/30 关键帧，单独输出 previews/boss-original-motion/death-keyframes.png。检查增加全程颜色 ffffffff、末帧 -60 度与原生死亡 alpha=1 断言。仍仅预览，未接入游戏、未打包。
+
+2026-10-10 Boss 原版造型五动作预览：使用已确认原版 idle-01 共享贴图，连续加权网格与六个局部触手控制点保持可见遮挡；8 bones、1 mesh、3200 triangles，主题 skeleton-original-motion。build-boss-original-motion.py、preview-boss-original-motion.cjs 输出五动作六姿态共 30 关键帧 previews/boss-original-motion/keyframes-sheet.png，动态 boss-skeleton.html 更新并支持暂停/翻转。Idle 3 秒含小幅触手摆动，Move 1.2 秒，Attack .75 秒/朝右/.3 秒出击，Cast .8 秒后触手抬起，Death 1 秒收拢倾斜淡出，无闭眼换图。攻击伸展限制在不导致网格翻折的幅度；隐藏面未补画，不适合大范围改变前后遮挡。check-boss-original-motion.cjs 检查五动作每 1/60 秒网格有向面积为正（最小 27.51），Chrome 暂停采样与已有 Cocos 原生五动作/死亡淡出通过，errors 为空；verification.json、native-attack.png 保存，截图已查看。仅预览，未替换 Boss.prefab 或改变游戏攻击判定，未打包、部署或推送。
+
+2026-10-10 Boss 原版待机还原：此前生成部件改变轮廓，全部触手置于头后也破坏原版前后交错关系。本次使用 idle-01 原图作为共享图集，通过 7 个可见区域网格重新组合，9 bones、84 triangles，保存主题 skeleton-original-idle；不重绘可见轮廓、不虚构被遮挡面。build-boss-original-idle.py、preview-boss-original-idle.cjs 生成原版/拼接对照 previews/boss-original-idle/original-vs-assembled.png，原尺寸 320×320 拼接逐像素差异为 0，comparison.json 保存。动态 boss-skeleton.html 现为原版待机对照，整体 3 秒 ±1 像素轻浮动，暂停恢复原姿态。check-boss-original-idle.cjs 验证浏览器同尺寸像素一致，以及既有 Cocos 原生运行时七个 mesh attachments、Idle 3 秒/浮动 1 像素可渲染，errors 为空；verification.json 与 native.png 保存，截图已查看。独立触手变形、隐藏面补画以及其他动作尚未重建，此版本不能当作完整 Boss 骨骼动画；未导入游戏或打包。
+
+2026-10-09 Boss 外观预览修正：用户指出拆分后的造型偏离原版。以 idle-01 的紫色圆胖头部、偏右金冠紫钻和后侧灰岩轮廓重新生成普通/闭眼完整头部，source-heads-v2.png 与 generation-prompts-v2.json 保存。王冠包含在头部内，原 crown slot 暂不显示，避免分层改变位置。调整后侧、左侧触手比例与位置；主触手使用现有自然卷曲部件生成连续网格，取消把直伸贴图强行折叠的待机姿态，攻击中段向眼神方向舒展。更新五动作与 30 关键帧，compare-boss-identity.cjs 生成原版/修正版同高度对照 original-vs-skeleton-v2.png。头部和整体轮廓更接近原版，触手形状仍有差异，不是像素级复原。修正版 Chrome 与现有 Cocos 原生运行时五动作兼容检查通过，errors 为空；仍仅主题素材预览，未导入 Boss.prefab，未打包、部署或推送。
+
+2026-10-09 章鱼 Boss 骨骼预览：参考当前 idle-01 与 attack-12，经内置 imagegen 生成头部、王冠、死亡头部和八条完整触手共 11 部件；主题 textures/characters/boss/animations/skeleton-rig 保留 source-parts-sheet.png、generation-prompts.json、独立 PNG 与 boss-octopus JSON/atlas/PNG。触手采用连续加权网格与 4/5 段骨骼，37 bones、10 slots、8 meshes；头部压短、王冠下移保持紧凑轮廓，主触手待机卷曲，攻击沿眼神朝右横扫。Idle 2.4s、Move 1.2s、Attack .75s（命中姿态 .3s）、Cast .8s、Death 1s，60Hz 单调三次曲线；死亡 .15s 切换同轮廓闭眼头。工具 build-boss-skeleton-preview.py、preview-boss-skeleton.cjs，30 关键帧 previews/boss-skeleton-keyframes-v1/keyframes-sheet.png，动态 previews/boss-skeleton.html。check-boss-skeleton-preview.cjs 验证所有顶点骨骼索引/权重和网格索引，Chrome 动态加载五动作无错误；既有 Cocos 原生运行时加载新图集验证五动作、连续网格渲染和死亡头替换通过，截图与报告 temp/verification/boss-skeleton-preview 已查看。仍是预览与兼容检查，尚未导入 Boss.prefab 或修改攻击判定、远程技能、血量、移速、非阻挡设定；未打包未部署。
+
+2026-10-09 召唤台确认后接入 Cocos：tools/import-summoning-scallop-rig.py 导入 assets/resources/gameplay/summoning-scallop-rig，UUID ec30cca6-4ada-423d-91ae-99df397c66b5；Main.scene 的 MagicLamp 新增直接关联 Spine 节点与 lampData，停用旧静态 Sprite，原素材保留。底部原点、比例 .73，上下壳/珍珠/底座四 slots，金币目标高度 115.34 与珍珠一致；随机位置、底座椭圆 85/35、进度条原位保留。MagicLampSystem 配置短混合：idle 3s、idle2 .5s；满额先播放 summon 1.2s 再打开宠物选择暂停，防止动画被中途暂停；满额后不再扣币，pets-ready 不提前跳过动画，每轮重置动画状态。tools/check-summoning-scallop-source.cjs 将当前支付源码与新图集载入已有 Cocos 原生运行时，验证三轮正常扣款（首轮预置 1 枚）、投币反馈、升珠、完成前不弹窗、每轮两张卡、选择/恢复/第三轮隐藏、底座固定与珍珠目标通过，错误为空；截图 temp/verification/summoning-scallop-rig/summon.png 已检查，report.json 保存。assets/scripts TypeScript 检查通过。library 尚未出现新 UUID 导入缓存；原生注入验证不等于用户编辑器刷新或实体手机验证。未打包、未部署、未推送。
+
+2026-10-09 召唤台骨骼预览：参考现有 summoning-scallop.png，经内置 imagegen 生成上壳、下壳、珍珠、珊瑚石台四个透明部件，原静态素材保留。新素材、Spine 3.8 图集/JSON 与 generation-prompts.json 位于主题 textures/props/summoning-scallop-rig。底部原点、上壳轴点在壳根，底座与下壳固定；idle 3s、idle2 投币反馈 .5s、summon 满额升珠 1.2s，60Hz 平滑曲线，5 bones/4 slots。工具 build-summoning-scallop-preview.py、preview-summoning-scallop.cjs；18 关键帧 previews/summoning-scallop-keyframes-v1/keyframes-sheet.png，动态 previews/summoning-scallop-skeleton.html。Chrome 动态加载检查四部件、三动作、固定底座、首尾恢复通过，错误为空，截图 temp/summoning-scallop-preview.png 已查看。当前仅预览，未修改 Cocos 召唤流程或运行时资源，待用户确认外观后接入；未打包、未部署。
+
+2026-10-09 修复螃蟹移除时报 setListener 空引用：Cocos 先销毁子节点的 Spine，再调用父 EnemyController.onDestroy；原 setCompleteListener(null) 触碰已释放的骨骼运行时。移除该调用，监听器由 Spine 自行释放，控制器仅清空引用。check-crab-rig-source.cjs 增加 enemyNode.destroy 和恢复 director 后的延迟销毁检查，实际销毁成功、错误为空；原移动/攻击/死亡单次掉落回归通过，TypeScript 通过。未打包未发布。
+
+2026-10-09 螃蟹确认后接入 Cocos：tools/import-crab-rig.py 导入 assets/resources/gameplay/enemies/crab-rig，Enemy.prefab.crabSkeleton 直接引用 UUID ffce6ffa-076b-4990-b302-e7815e334172，预制体原 UUID 保留，四种逐帧动画引用解除；EnemyController 在 onLoad 创建 CrabSpine，比例 .84，单轨道，待机/移动短混合，攻击 .55s、命中 .28s、死亡 .85s。攻击方向沿眼神，左右整体翻转；受击闪色同时作用骨骼，死亡立即解除阻挡，完整动作结束后仅掉落一次金币并移除。tools/check-crab-rig-source.cjs 将当前控制器与新图集装载至已有 Cocos 原生运行时，验证 Idle、移动不重启、单次命中、主螯方向、翻转、攻击恢复、死亡表情/退出碰撞/延迟单次掉落均通过，错误为空；报告 temp/verification/crab-rig/report.json，截图 attack.png 已查看。限定 assets/scripts 的 TypeScript 检查通过。当前 library 尚无新骨骼 UUID 缓存，需要编辑器完成资源刷新；原生注入验证不等于编辑器预览或实体手机验证。未打包、未部署、未推送。
+
+2026-10-09 螃蟹攻击朝向再次修正：原左螯出击与素材眼神朝右相反，现改为画面右侧主螯出击、左螯收拢，身体倾斜同步反向；整体翻转后眼神与夹击仍同向。已更新骨骼轨迹、关键帧和动态预览，仍未接入 Cocos。
+
+2026-10-09 螃蟹攻击预览方向修正：取消左右双螯镜像同时挥击，改为左侧主螯蓄力、前伸夹合、回收，另一螯仅小幅收拢，身体向出击侧轻倾；整体翻转后改变攻击方向。攻击仍 .55s、命中姿态 .28s、首尾回到待机；其他动作保留。关键帧与动态预览已重生成，Chrome 加载检查错误为空。仍为预览，未接入 Cocos。
+
+2026-10-09 螃蟹骨骼预览：参考现有红色螃蟹拆分 16 个透明部件，包括身体、八条步足、左右臂、钳掌、活动钳指和死亡表情；双钳掌另行生成修正。素材与提示词保存在主题 crab/skeleton-rig，预览 Spine 3.8 为 16 bones/slots。Idle 1.5s、Move .8s、Attack .55s、Death .85s，每动作六个关键姿态，60Hz 平滑轨迹。工具 prepare-crab-rig-parts.py、build-crab-rig-preview.py、preview-crab-rig.cjs；动态 previews/enemy-crab-skeleton.html 与关键帧 enemy-crab-skeleton-v1/keyframes-sheet.png。Chrome 动态加载检查四动作、16 部件通过，错误为空，截图 temp/crab-skeleton-preview.png。当前仅预览，尚未修改 Cocos 螃蟹运行时，等待用户确认外观；未打包未发布。
+
+2026-10-09 四形态持剑待机统一调整：tools/hero_sword_rest.py 对已确认 poses 的副本应用低位持剑，上臂放低 30°，以各形态武器局部安装角补偿手腕，使 Idle/Move 剑刃全局方向统一 5°；Attack 首尾接回新 Idle，攻击中间关键帧保留。四个导入脚本均应用同一规则，输出 poses-sword-rest.json，原确认 poses.json 保留。四形态骨骼重导入，UUID 保留；前三阶段肘/腿和第四披风修正不变。对比图 previews/hero-sword-rest/four-forms.png，动态预览已更新。check-hero-sword-rest.cjs 在已有 Cocos 原生运行时加载当前源码与四套 atlas，四形态招募进化/100 血/剑手挂点/待机和游泳六节点方向/攻击六节点/收招/攻击移动全部通过，错误为空；报告 temp/verification/hero-sword-rest/report.json。未打包、未部署，不等于编辑器完成缓存刷新。
+
+2026-10-09 第四形态按确认 v3 接入 Cocos：stage04-rig 的 Spine JSON/atlas/PNG、Main.scene 的 HeroEvolution.stageFourSkeleton（UUID 3c638d94-dd7a-404d-938b-4fe87ecc1ecb）已关联；四形态逐帧数组引用全部解除，第三次招募切换最新肘部/腿比例的最终骨骼、独立披风。Idle 2.4s、Move 1.2s、Attack .48s、命中 .205s、比例 .86、单轨道；三套加载模板预加载 stage04-rig。build-hero-stage04-preview.py --import 支持重导入并保留 UUID。TS 通过；check-hero-stage04-source.cjs 在已有 Cocos 原生运行时载入最新源代码与图集，进化/回血/17 slots/披风运动/移动不重启动画/攻击位移/六个剑方向/收招/翻转/最终形态不越级通过，错误为空。记录 temp/verification/hero-stage04-rig/report.json；截图已检查。场景四个骨骼 UUID 和逐帧解除核对通过；这不等于用户编辑器完成资源刷新。未打包、未部署。
+
+2026-10-09 第四形态躯干/腿比例修正：躯干由 55×61 收至 51×59，近远髋部横向间距从 11 增至 22 并略上提，近远大腿由 21/18 加宽为 27/24，同步加宽小腿与靴子，长度仍保持紧凑 Q 版。肘部 v2 修正保留。修正版 previews/hero-stage04-sword-keyframes-v3，动态预览更新为 v=legs3；原版本保留，仅预览未接入 Cocos。
+
+2026-10-09 第四形态肘部预览修正：上臂的近远侧实际连接点重新校准，远侧肘点下移；小臂替换为已确认第二形态的封闭金色 capsule，并使用关节内部枢轴留出连接重叠，消除两段开放接口拼接感。文件 stage-04/skeleton-rig/near-forearm-v3.png 与 far-forearm-v3.png；修正版 previews/hero-stage04-sword-keyframes-v2，动态 hero-stage04-skeleton.html 已指向新版。仅预览，未接入 Cocos。
+
+2026-10-09 第四形态骨骼预览：以现有最终形态外观/攻击帧为参考生成 16 部件与专属短剑，披风单独拆分并由 cape/body 骨骼驱动；沿用已确认的近远拳头，修正远侧小臂方向，保持头大短身。素材与提示词统一在主题 stage-04/skeleton-rig；18 关键帧 previews/hero-stage04-sword-keyframes-v1，动态 previews/hero-stage04-skeleton.html。18 bones、17 slots；Idle/Move/Attack 动态预览加载错误为空，肘腕角度约束与三动作首尾衔接检查通过。工具 prepare-hero-stage04-parts.py、preview-hero-stage04-keyframes.cjs、build-hero-stage04-preview.py。仅预览，等待外观确认后再接入 Cocos，未打包未发布。
+
+2026-10-09 第三形态确认后接入 Cocos：stage03-rig 的 Spine JSON/atlas/PNG 与 Main.scene 的 HeroEvolution.stageThreeSkeleton UUID 7c209b3a-0fa3-44e6-82b6-2d649f92d6ca 已关联，解除第三形态逐帧数组引用；Idle 2.4s、Move 1.2s、Attack 0.48s、命中 .205s，比例 .80、单轨道。三套加载模板同步预加载并识别第三形态骨骼。TS 检查通过。check-hero-stage03-source.cjs 将当前源代码与新图集载入已有 Cocos 运行时，验证第二次招募进化、满血、16 slots、移动不重启动作、攻击允许位移、六个剑方向/挂点、恢复待机、翻转与第四形态恢复逐帧，错误为空；报告 temp/verification/hero-stage03-rig/report.json。实际 7456 编辑器预览等待超时，library 尚无新 UUID 的导入缓存，不能声称编辑器实测已通过；需要编辑器刷新资源并重开 Main.scene。未打包、未部署。
+
+2026-10-09 第三形态骨骼预览：使用现有第三形态静态/攻击素材为参考生成身体拆分与专属短剑，复用已确认的近远拳头视角，校准水平肩肘连接并保持紧凑 Q 版比例。素材统一在主题目录 stage-03/skeleton-rig，提示词 generation-prompts.json。18 张待机/游泳/攻击关键帧位于 previews/hero-stage03-sword-keyframes-v1；动态预览 previews/hero-stage03-skeleton.html 使用部件与 Spine 骨骼轨迹实时绘制，17 bones、Idle/Move/Attack，浏览器加载错误为空。工具 prepare-hero-stage03-parts.py、preview-hero-stage03-keyframes.cjs、build-hero-stage03-preview.py。当前仅预览，尚未替换 Cocos 第三形态；未打包、未发布。
+
+2026-10-09 补充修复：上一轮仅等待宠物异步加载，没有撤销运行时异步依赖，且 Cocos 内置启动脚本仍会提前设置 splash display:none。现已恢复 Main.scene 四只宠物 Prefab 直接引用，预览启动前也预加载后续资源；三套加载页用未完成状态的 CSS 优先级阻止内置脚本提前隐藏。旧编辑器内存场景的空引用仍由兼容加载补齐，加载页始终等待它完成。实际 7456 预览检查加载页提前隐藏次数为 0；按正常 spendCoins/update 投币完成 10/50/100 三轮，均显示两张卡并招募，错误为空。TS 通过（--lib ES2017,DOM）；未打包、未发布。验证脚本 tools/check-lamp-natural-preview.cjs。
+
+2026-10-09 修复 Cocos 预览召唤台满额未弹窗：预览加载页现在与 web-mobile 一致，等待宠物/Boss/英雄资源就绪后进入游戏；PetSystem 在 onLoad 开始加载四只宠物，assetsReady 逐项验证引用；MagicLampSystem 满额后每帧尝试弹窗，不再依赖单次 pets-ready 事件，也不重复扣款。`tools/check-lamp-preview.cjs http://127.0.0.1:7456` 已在真实编辑器预览验证资源延迟恢复、2 张卡牌、暂停、招募、第二形态骨骼进化和恢复运行，错误为空；TS 通过。未打包、未发布。
+
+2026-10-09 第二形态按确认的 `hero-stage02-sword-keyframes-v3/poses.json` 接入，近远拳头使用第一形态不同视角，小臂为修正版，贝壳肩甲/头饰和武器为第二形态专属。`tools/apply-hero-stage02-keyframes.py` 导入 `assets/resources/gameplay/hero/stage02-rig`，HeroEvolution.stageTwoSkeleton 场景引用和资源加载 fallback 已关联；停用第二形态逐帧引用。短剑局部旋转 -30°，与预览 handAngleOffset=60° 一致。`tools/check-hero-stage02-source.cjs` 在现有 Cocos 运行时载入当前源码与新 atlas，进化、满血、16 部件、3 动作、剑角度、攻击移动、翻转及第三形态恢复逐帧通过，TS 通过。未打包、未发布；不等于实体手机或用户编辑器预览验证。
+
+2026-10-09 第一形态已按确认的 `hero-stage01-sword-keyframes-v3/poses.json` 接入待机、游泳、挥剑攻击，使用 15 身体部件及贝壳短剑，单 atlas，保留 UUID。`tools/apply-hero-stage01-keyframes.py` 生成平滑骨骼轨迹并导入；短剑骨骼跟随 near-hand，局部 rotation=0（图片本身朝上，不能额外旋转 90°）。最新方向修复未重新打包；`tools/check-hero-stage01-rig.cjs <URL> --source-rig` 在 Cocos 运行时载入最新源 JSON，六个攻击姿态角度、武器挂点、动画切换、攻击时移动及第二形态进化通过。
+
+2026-10-08 第一形态骨骼动画：新素材位于主题目录 `textures/characters/hero/animations/stage-01/skeleton-rig`，含 15 个透明部件、1024×1024 atlas 贴图、Spine 3.8 JSON、atlas 和制作提示词；独立部件保留在主题目录，运行时仅导入 `assets/resources/gameplay/hero/stage01-rig/hero-stage-01.{json,atlas,png}`。`tools/build-hero-stage01-rig.py` 提取部件、生成骨骼/动画和稳定 UUID，并更新 Main.scene。第一形态 Idle 2.4 秒、Move 1.2 秒、Attack 0.48 秒，命中时刻 0.205 秒；HeroVisual 使用同一骨骼和短混合过渡。第一形态旧逐帧源码保留，场景与控制器解除其动画引用；后续形态维持现有逐帧，进化时正确切换。完整加载页预加载新骨骼资源。TS、Cocos 构建、实际 Spine 渲染、移动动画不重置、攻击时位移、左右翻转、攻击恢复、进化及满血、完整招募/Boss/音乐回归通过，错误为空；截图和报告在 `build/verification/hero-stage01-rig`。当前本地压缩 HTML 约 24.1 MiB，gzip 约 15.0 MiB。本轮骨骼版本尚未发布线上或推送 GitHub；未验证实体手机。可运行 `tools/check-hero-stage01-rig.cjs <URL>` 检查骨骼行为。
+
+2026-10-08 更新：按用户要求，加载页下载全部 1815 项打包资源（gzip 约 15.5 MiB），不再使用开场/后续资源拆包。`tools/prepare-vercel.py` 生成完整 `startup.html.gz` 与旧浏览器 fallback `complete.html`；模板预加载宠物/Boss Prefab 和全部英雄动画，并等待场景组件接收资源才显示游戏。已删除 30 秒慢加载提示、重新加载按钮和重启逻辑，真实失败仅显示“资源加载失败”。本地手机视口限速模拟约 41.2 秒，整个检查仅请求首页和完整资源包；进入游戏后无追加下载。全部资源就绪、移动、招募、英雄进化、Boss 战和音乐回归通过；未验证实体手机。以下 2026-10-07 拆包方案和耗时是历史记录。
 
 `tools/build-and-pack.ps1` 需要 Node.js、Python 与 Pillow。打包保留 `build/undersea-adventure-full.html` 原版，并输出压缩单文件 `build/undersea-adventure-single.html`；`tools/prepare-vercel.py` 仅压缩构建副本：静态背景和 UI 贴图按移动端显示尺寸缩小，并同步调整 SpriteFrame 的 rect、originalSize、offset 和 vertices；角色动画保留帧尺寸。原始 `assets/` 图片和音频不变。音频压缩使用项目临时目录中的 imageio-ffmpeg，可用 Python 安装到 `temp/media-python`。
 
@@ -367,3 +434,38 @@ Main.scene 的 Animation 和 HeroEvolution 已保存四形态动作引用。初�
 ## 英雄动画降速（2026-10-05）
 
 四个形态的 12 套 Cocos 动画已降速：待机 10 FPS，一轮 2.4 秒；奔跑与攻击 16 FPS，一轮 1.5 秒。保留每套 24 张帧图，调整动画时间轴和时长。第一形态命中按动画进度初始化，后续形态按既有命中进度随时长换算；挥砍特效按完整攻击时长伸缩，后续形态攻击音效延迟调为 0.3 秒。移动速度保留。按用户要求未运行效果检查。
+## 水母原图连续网格预览（2026-10-10）
+
+用户指出首版拆分素材未还原原始水母；改为直接复制原始 idle/idle-01.png 至主题目录 jellyfish/original-rig，贴图字节完全一致。使用一个连续加权网格、8 根骨骼，保留伞盖、五官和触手遮挡关系，通过局部小幅变形提供 Idle（3 秒）、Move（1.4 秒）、Attack（0.72 秒）。未接入游戏 Prefab、未重新打包。
+
+生成脚本为 tools/build-jellyfish-original-motion.py、tools/preview-jellyfish-original-motion.cjs；预览页为主题目录 previews/pet-jellyfish-skeleton.html，18 张关键帧在 previews/pet-jellyfish-original-motion/keyframes-sheet.png。tools/check-jellyfish-original-motion.cjs 已验证权重归一、三角形无翻折、原始贴图一致，以及 Cocos 原生 Skeleton 三个动作正常播放、无运行错误。下一步接入需以用户批准的预览为准，并按水母尺寸单独适配游戏和卡片中的显示比例。
+
+
+
+## 水母骨骼接入 Cocos（2026-10-10）
+
+已按批准的原图连续网格版本导入 assets/resources/gameplay/pets/jellyfish-rig，SkeletonData UUID c64617b8-c197-4e32-957d-e4c4674029c7 直接关联 PetWhiteTiger.prefab 的 PetFollower.petSkeleton。保留原 Prefab UUID，停用旧 CharacterAnimation 和 Animation 并清空 clips。PetFollower 新增可序列化的骨骼显示及卡片尺寸参数，默认保留乌龟配置；水母沿用旧 Sprite 的 .5 比例和 (1.25,5.558935) 位置，卡片可见最长边 220、中心补偿 (2.5,13)，独立 Rig 节点循环 Idle，暂停期间继续推进。
+
+check-jellyfish-rig-source.cjs 用当前源码和导入资源注入现有 Cocos 原生运行时，验证 Idle、Move 不重启、Attack 单次 10 伤害与一次特效、恢复 Move、暂停卡片 Idle 推进、切换其他宠物恢复 Sprite，错误为空。攻击目标及特效为计数替身，未验证实际敌人伤害和实体手机。TypeScript 检查通过，temp/verification/jellyfish-rig/card.png 已查看。未重新打包、部署或推送；当前源码资源接入不等同于旧 HTML 已更新。
+
+2026-10-10 水母动作可见性修正：用户反馈不动。原 Idle 根骨上下幅度 1 像素、游戏 .5 比例后仅 .5 单位，视觉过弱；改为 Idle 根骨幅度 6、Move 9，身体摆动 1.2/2 度，触手局部横向 5/8、纵向 2.5/4，伞盖 3/5。保留原始贴图和 UUID，生成脚本重新导入当前 Cocos 资源。网格全动作无翻折（最小有向面积 19.327），原生动作与跟随/攻击/卡片回归通过。新增待机时间轴及 rootY 检查，.6 秒 rootY=5.7063，卡片暂停仍推进。直接编辑器首页场景查询未定位到 Canvas，不能视为用户当前窗口验证；采用当前源码注入原生运行时检查。未打包。
+
+2026-10-10 海马原图连续网格预览：用户要求沿用水母思路。原 seahorse/idle/idle-01.png（336×336）字节完全不变，输出主题 seahorse/original-rig；1 mesh、7 bones、3200 triangles，尾、侧鳍、冠鳍、吻部、腹部五控制点，眼睛区域保护权重。Idle 3s 根骨浮动 6、Move 1.4s 浮动 9 与鳍尾摆动，Attack .72s 后仰蓄力后朝吻部方向释放；60Hz 平滑采样，18 张关键帧。build-seahorse-original-motion.py、preview-seahorse-original-motion.cjs 输出 previews/pet-seahorse-skeleton.html 和 pet-seahorse-original-motion/keyframes-sheet.png。check-seahorse-original-motion.cjs 原图一致、权重归一、全动作网格无翻折（最小有向面积 52.78449）、动态页和原生 Cocos 三动作播放通过，errors=[]。当前仅预览，未接入游戏 Prefab、未打包或发布。
+
+2026-10-10 海马批准后接入 Cocos：import-seahorse-rig.py 导入 assets/resources/gameplay/pets/seahorse-rig，SkeletonData UUID 8a780f81-19c5-48da-8acb-b87e14fadb4a 直接关联 PetRedDragon.prefab.PetFollower.petSkeleton；原 Prefab UUID 保留，停用旧 CharacterAnimation/Animation 并清除 clips。复用宠物骨骼跟随与攻击路径，游戏显示沿用旧 Sprite 的 .467890686 比例、(-18.481682,-.157682) 位置；卡片按 224 可见最长边、(-39.5,1) 中心补偿适配，独立 Rig 循环 Idle、选卡暂停期间继续动画。check-seahorse-rig-source.cjs 注入当前源码及新资源到已有 Cocos 原生运行时：初始 Idle、时间轴推进/.6 秒 rootY=5.7063、Move 不重启、Attack 单次 10 伤害及一次特效、恢复 Move、暂停卡片 Idle、切换其他宠物恢复 Sprite 均通过，错误为空。攻击目标/特效使用计数替身，未证明真实敌人和实体手机效果。TypeScript 检查通过，temp/verification/seahorse-rig/card.png 已查看，未打包、发布或推送。
+
+2026-10-10 鲨鱼原图连续网格预览：沿用海马与水母思路，原 shark/idle/idle-01.png（512×512）不改动，输出主题 shark/original-rig。1 mesh、7 bones、3200 triangles，尾部、胸鳍、背鳍、头部和腹部控制点，保护眼睛区域；尾部主要上下摆动，Idle 3s 根骨浮动6、Move 1.4s 浮动9，Attack .72s 后仰蓄力后朝头部方向远程释放。build-shark-original-motion.py、preview-shark-original-motion.cjs 生成 18 关键帧及 previews/pet-shark-skeleton.html，展示时补偿原图偏右下透明留白。check-shark-original-motion.cjs 验证原图一致、权重、三动作网格无翻折（最小有向面积132.585）、动态页面和原生 Cocos 三动作播放均通过，errors=[]。目前仅预览，尚未接入 PetBlueDragon.prefab，未打包或发布。
+
+2026-10-10 鲨鱼独立部件预览：用户要求拆分，内置 imagegen 参考原图生成透明 source-parts-sheet.png，提示词保存 shark/parts-rig/generation-prompts.json。拆为 body（头身连续）、tail、dorsal、near-fin、far-fin 五独立 PNG，重绘连接区域并按 pivot 拼接；6 bones/5 region slots，Idle 3s、Move 1.4s、Attack .72s。尾、背鳍、远鳍在身体之后，近鳍在身体之前。build-shark-parts-preview.py、preview-shark-parts.cjs 输出 pet-shark JSON/atlas/PNG、18 关键帧和独立部件预览，动态 pet-shark-skeleton.html 改为拆分版本。check-shark-parts-preview.cjs 循环恢复、浏览器和 Cocos 原生三动作通过，尾骨实际角度变化，errors=[]。造型接近原图但生成补画不是像素级一致；尚未接入 PetBlueDragon.prefab、未打包或发布。
+
+2026-10-10 鲨鱼尾巴与身体合并：用户要求尾巴不分割。内置 imagegen 参考原图生成 source-body-tail.png（提示词 generation-prompts-continuous.json），头身尾一张连续贴图，背鳍/近胸鳍/远胸鳍独立；4 slots/6 bones。身体采用40×24加权网格、1920三角形，在尾根40单位区间 smoothstep 混合 body/tail，保留摆尾且无独立尾根接缝。背鳍根部从y44下移到26，确保藏在新躯干轮廓内。build-shark-continuous-parts.py、preview-shark-continuous-parts.cjs 支持混合 mesh/region 渲染，18关键帧及动态 pet-shark-skeleton.html 更新 continuous1。check-shark-parts-preview.cjs 原生 Idle/Move/Attack 与尾骨转动验证通过，errors=[]；旧tail.png仅历史部件，当前图集及slots不引用。未接入游戏、未打包。
+
+2026-10-10 鲨鱼身体尾巴连续版本接入 Cocos：import-shark-rig.py 导入 assets/resources/gameplay/pets/shark-rig，SkeletonData UUID 3e31b441-8719-4539-b75e-7094d23c6afd 直接关联 PetBlueDragon.prefab.PetFollower.petSkeleton，保留原 Prefab UUID、停用旧 CharacterAnimation/Animation 并清除 clips。使用用户批准的4 slots/6 bones 身尾连续 mesh 加独立背鳍和两侧胸鳍，不使用旧五部件分割尾巴版本。按中性姿态 bounds [-145,-87,100,82.12] 适配原可见宽度，显示比例 .5576397、位置(12.546894,-.718870)；卡片最长边245、中心补偿(22.5,2.44)，独立 Rig 循环 Idle，暂停时继续推进。check-shark-rig-source.cjs 注入当前源码及新资源到现有 Cocos 原生运行时：Idle时间轴与 rootY=5.7063、Move 不重启、Attack 单次10伤害/一次特效、结束恢复、暂停卡片待机及切换其他宠物恢复 Sprite 均通过，errors=[]；攻击目标/特效为计数替身，未验证实际敌人和实体手机。TypeScript通过，temp/verification/shark-rig/card.png 已查看。未打包、发布或推送。
+
+2026-10-10 Boss 小范围身体阻挡：用户明确撤销此前无阻挡要求，选择角色走进身体需小范围阻挡。BossController/Boss.prefab 增加 bodyRadiusX=100、bodyRadiusY=55、bodyOffsetY=-50，configureBody 创建/复用 CircleBody2D 椭圆，group/mask=3，与英雄、敌人和宠物交互；Boss 移动走 swept moveTo(slide=true)，不再直接穿入其他角色。BossBattleSystem 出生前配置身体并按 canOccupy 找空位，拥挤时沿原重试流程等待；死亡立即关闭阻挡，受击330×300与攻击参数保持。check-boss-body-source.cjs 注入当前 Boss 源码到原生运行时验证英雄移动到Boss中心被挡、Boss向英雄中心移动被挡、宠物组匹配、Idle/Move、5点单次近战伤害、远程Cast、闭眼下沉及死亡解除阻挡/单次结算，errors=[]。源码TypeScript通过；测试未在用户当前编辑器窗口或实体手机运行，未打包。
+
+2026-10-10 召唤台满额立即选卡：用户要求满额即弹出。MagicLampSystem 删除召唤动画完成等待及 summonElapsed/summonFinished 状态，满额 update 分支和最后一枚正常扣币分支同步 openSelection；pets-ready 回调也不等待动画，并检查当前有效阶段/英雄与召唤台激活。保留预先资源就绪保护、暂停/摇杆关闭、清理飞币及选择后进入下一轮。check-lamp-immediate-selection.cjs 当前源码注入已有原生 Cocos，三轮10/50/100正常逐枚投币在达到门槛的同一 update 调用即 open=true，选择两卡/暂停/单次扣币/恢复及完成三次招募通过，errors=[]。TypeScript检查通过，未打包或发布。
+
+2026-10-10 四宠物骨骼替换后清理并打包：按用户授权运行 clean-unused-assets.py --apply，删除296个不再引用的旧宠物帧及12个旧动画，27,751,341字节（26.47MiB），同时删除匹配meta和空目录；主题源素材保留。TypeScript通过，Cocos web-mobile构建成功（约30秒），压缩离线单HTML build/undersea-adventure-single.html=15,521,794字节（14.80MiB），对比上一19,519,147字节减少20.48%。内部资源gzip=7,538,471字节；保留完整未压缩中间包undersea-adventure-full.html。check-single-html.cjs新包实际离线启动无外部请求/错误，首输入前不计时不生成敌人，移动与音乐、四宠物骨骼引用及三次招募进化、Boss身体阻挡100/55/-50、血量200/伤害5、Boss音乐/胜利恢复通过。本地压缩产物包含当前满额立即选卡源码，未部署或推送。
+
+2026-10-10 整包 gzip 单 HTML：新增 tools/pack-gzip-html.py，压缩完整 compact HTML 后内嵌 Base64，先显示加载页，再使用原生 DecompressionStream 或内置 pako 解压，在原始文档中启动 Cocos。所有465个运行资源仍内嵌，图片与音频不新增有损处理。build-and-pack.ps1 后续自动生成此包；产物 build/undersea-adventure-single.html=10,202,506字节（9.73MiB），比15,521,794字节减少34.27%。原生与备用解压离线回归通过，最终原生回归 errors=[]、external=[]，首输入前不计时不生成敌人，移动/音乐、宠物招募、Boss参数和音乐切换通过。未部署或推送，未验证实体手机加载时长。

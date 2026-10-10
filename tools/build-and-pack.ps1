@@ -15,5 +15,6 @@ if ($LASTEXITCODE -ne 0) { throw 'Single HTML packing failed.' }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'build\undersea-adventure-single.html') -Destination (Join-Path $projectRoot 'build\undersea-adventure-full.html') -Force
 & $Python (Join-Path $PSScriptRoot 'prepare-vercel.py') $Node
 if ($LASTEXITCODE -ne 0) { throw 'Mobile distribution preparation failed.' }
-Copy-Item -LiteralPath (Join-Path $projectRoot 'build\undersea-adventure-compact.html') -Destination (Join-Path $projectRoot 'build\undersea-adventure-single.html') -Force
+& $Python (Join-Path $PSScriptRoot 'pack-gzip-html.py')
+if ($LASTEXITCODE -ne 0) { throw 'Embedded gzip HTML packing failed.' }
 Write-Output ('HTML: ' + (Join-Path $projectRoot 'build\undersea-adventure-single.html'))

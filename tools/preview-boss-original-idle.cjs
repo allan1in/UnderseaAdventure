@@ -1,0 +1,27 @@
+const fs=require('fs'),path=require('path');
+const {createCanvas,loadImage}=require('C:/Users/LIN/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
+const theme=path.resolve(__dirname,'../../主题素材/海底冒险'),dir=path.join(theme,'textures/characters/boss/animations/skeleton-original-idle'),out=path.join(theme,'previews/boss-original-idle');fs.mkdirSync(out,{recursive:true});
+function drawAssembly(ctx,rig,im,x,y,scale,lift=0,only=null){
+ if(scale!==1){
+  const buffer=typeof document==='undefined'?createCanvas(im.width,im.height):document.createElement('canvas');buffer.width=im.width;buffer.height=im.height;
+  drawAssembly(buffer.getContext('2d'),rig,im,im.width/2,im.height/2,1,0,only);
+  ctx.drawImage(buffer,x-im.width*scale/2,y-lift*scale-im.height*scale/2,im.width*scale,im.height*scale);return;
+ }
+ ctx.save();ctx.translate(x,y-lift*scale);ctx.scale(scale,scale);
+ for(const slot of rig.slots){if(only&&slot.name!==only)continue;const a=rig.skins[0].attachments[slot.name][slot.attachment],bone=rig.bones.find(b=>b.name===slot.bone);ctx.save();ctx.beginPath();
+  // The mesh cells share exact integer edges. Clip their union once so
+  // internal triangle AA cannot create artificial seams in the 2D preview.
+  for(let k=0;k<a.vertices.length;k+=20){const points=[];for(let j=0;j<4;j++)points.push([a.vertices[k+j*5+2]+bone.x,-a.vertices[k+j*5+3]-bone.y]);
+   points.forEach((p,i)=>ctx[i?'lineTo':'moveTo'](...p));ctx.closePath();}
+  ctx.clip();ctx.drawImage(im,-im.width/2,-im.height/2);ctx.restore();
+ }ctx.restore();
+}
+(async()=>{const rig=JSON.parse(fs.readFileSync(path.join(dir,'boss-original-idle.json'),'utf8')),im=await loadImage(path.join(dir,'boss-original.png'));
+ const raw=createCanvas(im.width,im.height);drawAssembly(raw.getContext('2d'),rig,im,im.width/2,im.height/2,1);fs.writeFileSync(path.join(out,'assembled-idle.png'),raw.toBuffer('image/png'));
+ const ref=createCanvas(im.width,im.height);ref.getContext('2d').drawImage(im,0,0);const actual=raw.getContext('2d').getImageData(0,0,im.width,im.height).data,expected=ref.getContext('2d').getImageData(0,0,im.width,im.height).data;let mismatched=0,max=0;for(let i=0;i<actual.length;i+=4){let delta=0;for(let j=0;j<4;j++)delta=Math.max(delta,Math.abs(actual[i+j]-expected[i+j]));if(delta)mismatched++;max=Math.max(max,delta)}
+ const report={width:im.width,height:im.height,mismatchedPixels:mismatched,maxChannelDifference:max,previewOnly:true};fs.writeFileSync(path.join(out,'comparison.json'),JSON.stringify(report,null,2));
+ const c=createCanvas(1100,650),ctx=c.getContext('2d');ctx.fillStyle='#e7f2f6';ctx.fillRect(0,0,1100,650);[false,true].forEach((assembled,i)=>{ctx.fillStyle='white';ctx.fillRect(i*550+12,12,526,626);ctx.fillStyle='#174657';ctx.font='bold 28px sans-serif';ctx.fillText(assembled?'原版素材分区拼接':'原版素材',i*550+34,60);ctx.drawImage(assembled?raw:im,i*550+275-im.width*.9,310-im.height*.9,im.width*1.8,im.height*1.8)});fs.writeFileSync(path.join(out,'original-vs-assembled.png'),c.toBuffer('image/png'));
+ const parts=createCanvas(1400,700),pc=parts.getContext('2d');pc.fillStyle='#e7f2f6';pc.fillRect(0,0,1400,700);rig.slots.forEach((s,i)=>{const x=i%4*350,y=Math.floor(i/4)*350;pc.fillStyle='white';pc.fillRect(x+5,y+5,340,340);pc.fillStyle='#174657';pc.font='20px sans-serif';pc.fillText(s.name,x+16,y+30);drawAssembly(pc,rig,im,x+175,y+160,.95,0,s.name)});fs.writeFileSync(path.join(out,'visible-regions.png'),parts.toBuffer('image/png'));
+ const html=`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>BOSS 原版待机拼接</title><style>body{font:16px system-ui;background:#e7f2f6;color:#174657;margin:24px}section{display:flex;gap:16px}article{background:white;border-radius:16px;padding:16px;flex:1;text-align:center}canvas{width:100%;max-width:550px}button{padding:10px;margin-bottom:16px}@media(max-width:700px){section{display:block}}</style><h1>BOSS · 原版待机还原</h1><p>使用原版可见素材分区拼接，保留根部遮挡和前侧卷曲。当前仅待机整体轻微浮动，其他动作尚未重做。</p><button id="pause">暂停浮动</button><section><article><h2>原版素材</h2><canvas id="reference" width="550" height="550"></canvas></article><article><h2>分区拼接待机</h2><canvas id="assembled" width="550" height="550"></canvas></article></section><script>const drawAssembly=${drawAssembly.toString()};window.ready=(async()=>{const base='../textures/characters/boss/animations/skeleton-original-idle/',rig=await(await fetch(base+'boss-original-idle.json',{cache:'no-store'})).json(),im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=base+'boss-original.png'});window.rigData=rig;let paused=false;document.getElementById('pause').onclick=()=>{paused=!paused;document.getElementById('pause').textContent=paused?'继续浮动':'暂停浮动'};const a=document.getElementById('assembled').getContext('2d'),ref=document.getElementById('reference').getContext('2d');ref.drawImage(im,275-im.width*.75,230-im.height*.75,im.width*1.5,im.height*1.5);const start=performance.now();window.drawIdle=(t)=>{a.clearRect(0,0,550,550);drawAssembly(a,rig,im,275,230,1.5,Math.sin(t*Math.PI*2/3))};function tick(now){drawIdle(paused?0:(now-start)/1000);requestAnimationFrame(tick)}requestAnimationFrame(tick)})();</script></html>`;
+ fs.writeFileSync(path.join(theme,'previews/boss-skeleton.html'),html);console.log(report);
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,26 @@
+boss-original.png
+size: 320,320
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+boss-original
+  rotate: false
+  xy: 0, 0
+  size: 320, 320
+  orig: 320, 320
+  offset: 0, 0
+  index: -1
+
+boss-original-dead.png
+size: 320,320
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+boss-original-dead
+  rotate: false
+  xy: 0, 0
+  size: 320, 320
+  orig: 320, 320
+  offset: 0, 0
+  index: -1
+

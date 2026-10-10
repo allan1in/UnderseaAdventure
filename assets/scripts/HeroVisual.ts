@@ -31,6 +31,7 @@ export class HeroVisual extends Component {
     private direction = 1;
     private frameAction = '';
     private usesFrameTransforms = false;
+    private singleSpineTrack = false;
 
     get facing(): number { return this.direction; }
     get displaySprite(): Sprite | null { return this.renderer; }
@@ -53,13 +54,21 @@ export class HeroVisual extends Component {
         this.align('idle');
     }
 
-    configureSpine(data: sp.SkeletonData): void {
+    configureSpine(data: sp.SkeletonData, settings?: { x: number; y: number; scale: number; singleTrack?: boolean }): void {
         this.skeleton = this.pivot?.getChildByName('Spine')?.getComponent(sp.Skeleton) ?? null;
         if (!this.skeleton || !this.picture) return;
         this.animator?.stop();
         this.picture.active = false;
         this.idleOffsetX = this.walkOffsetX = this.walkOffsetY = 0;
         this.skeleton.skeletonData = data;
+        this.singleSpineTrack = !!settings?.singleTrack;
+        if (settings) {
+            this.skeleton.node.setPosition(settings.x, settings.y, 0);
+            this.skeleton.node.setScale(settings.scale, settings.scale, 1);
+            for (const from of ['Idle', 'Move', 'Attack']) for (const to of ['Idle', 'Move', 'Attack']) {
+                if (from !== to) this.skeleton.setMix(from, to, to === 'Attack' ? .035 : .09);
+            }
+        }
         this.skeleton.premultipliedAlpha = false;
         this.skeleton.paused = false;
         this.skeleton.node.active = true;
@@ -67,7 +76,7 @@ export class HeroVisual extends Component {
         this.align('idle');
     }
 
-    finishSpineAttack(): void { this.skeleton?.clearTrack(1); }
+    finishSpineAttack(): void { if (!this.singleSpineTrack) this.skeleton?.clearTrack(1); }
 
     setTint(color: Color): void {
         if (this.renderer) this.renderer.color = color;
@@ -140,7 +149,7 @@ export class HeroVisual extends Component {
             this.spineAction = state;
             const name = state === 'walk' ? 'Move' : state === 'attack' ? 'Attack' : 'Idle';
             // 原最终形态：Idle/Move 在轨道 0，Attack 在轨道 1 叠加。
-            this.skeleton!.setAnimation(state === 'attack' ? 1 : 0, name, state !== 'attack');
+            this.skeleton!.setAnimation(state === 'attack' && !this.singleSpineTrack ? 1 : 0, name, state !== 'attack');
             return;
         }
         if (!this.picture) return;

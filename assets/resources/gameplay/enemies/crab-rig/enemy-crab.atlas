@@ -1,0 +1,117 @@
+enemy-crab.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+left-far-rear
+  rotate: false
+  xy: 4,4
+  size: 144,185
+  orig: 144,185
+  offset: 0,0
+  index: -1
+left-far-front
+  rotate: false
+  xy: 156,4
+  size: 167,204
+  orig: 167,204
+  offset: 0,0
+  index: -1
+left-near-rear
+  rotate: false
+  xy: 331,4
+  size: 149,194
+  orig: 149,194
+  offset: 0,0
+  index: -1
+left-near-front
+  rotate: false
+  xy: 488,4
+  size: 177,207
+  orig: 177,207
+  offset: 0,0
+  index: -1
+right-far-rear
+  rotate: false
+  xy: 673,4
+  size: 157,187
+  orig: 157,187
+  offset: 0,0
+  index: -1
+right-far-front
+  rotate: false
+  xy: 838,4
+  size: 175,198
+  orig: 175,198
+  offset: 0,0
+  index: -1
+right-near-rear
+  rotate: false
+  xy: 4,219
+  size: 163,206
+  orig: 163,206
+  offset: 0,0
+  index: -1
+right-near-front
+  rotate: false
+  xy: 175,219
+  size: 179,208
+  orig: 179,208
+  offset: 0,0
+  index: -1
+body
+  rotate: false
+  xy: 362,219
+  size: 240,217
+  orig: 240,217
+  offset: 0,0
+  index: -1
+dead-face
+  rotate: false
+  xy: 610,219
+  size: 240,167
+  orig: 240,167
+  offset: 0,0
+  index: -1
+left-arm
+  rotate: false
+  xy: 4,444
+  size: 191,136
+  orig: 191,136
+  offset: 0,0
+  index: -1
+left-palm
+  rotate: false
+  xy: 203,444
+  size: 240,239
+  orig: 240,239
+  offset: 0,0
+  index: -1
+left-finger
+  rotate: false
+  xy: 451,444
+  size: 160,204
+  orig: 160,204
+  offset: 0,0
+  index: -1
+right-arm
+  rotate: false
+  xy: 619,444
+  size: 196,131
+  orig: 196,131
+  offset: 0,0
+  index: -1
+right-palm
+  rotate: false
+  xy: 4,691
+  size: 240,239
+  orig: 240,239
+  offset: 0,0
+  index: -1
+right-finger
+  rotate: false
+  xy: 252,691
+  size: 173,215
+  orig: 173,215
+  offset: 0,0
+  index: -1

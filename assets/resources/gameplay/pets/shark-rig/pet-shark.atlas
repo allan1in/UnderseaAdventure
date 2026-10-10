@@ -1,0 +1,33 @@
+pet-shark.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+body
+  rotate: false
+  xy: 4,4
+  size: 480,230
+  orig: 480,230
+  offset: 0,0
+  index: -1
+dorsal
+  rotate: false
+  xy: 492,4
+  size: 228,212
+  orig: 228,212
+  offset: 0,0
+  index: -1
+near-fin
+  rotate: false
+  xy: 728,4
+  size: 238,209
+  orig: 238,209
+  offset: 0,0
+  index: -1
+far-fin
+  rotate: false
+  xy: 4,242
+  size: 190,157
+  orig: 190,157
+  offset: 0,0
+  index: -1
