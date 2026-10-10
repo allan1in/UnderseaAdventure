@@ -22,7 +22,10 @@ if not inflater.exists():
     shutil.copy2(pako_root / 'LICENSE', vendor / 'pako-LICENSE')
 start = shell.index("   if(!('DecompressionStream' in window))")
 end = shell.index('   if(gameURL)', start)
-decode = '''   const encoded=document.getElementById('packed-game').textContent.trim();
+decode = '''   if(document.readyState==='loading'){
+    await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
+   }
+   const encoded=document.getElementById('packed-game').textContent.trim();
    const bytes=new Uint8Array(encoded.length/4*3);let offset=0;
    for(let i=0;i<encoded.length;i+=262144){
     const raw=atob(encoded.slice(i,i+262144));

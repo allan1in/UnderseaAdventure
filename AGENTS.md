@@ -471,3 +471,5 @@ check-jellyfish-rig-source.cjs 用当前源码和导入资源注入现有 Cocos 
 2026-10-10 整包 gzip 单 HTML：新增 tools/pack-gzip-html.py，压缩完整 compact HTML 后内嵌 Base64，先显示加载页，再使用原生 DecompressionStream 或内置 pako 解压，在原始文档中启动 Cocos。所有465个运行资源仍内嵌，图片与音频不新增有损处理。build-and-pack.ps1 后续自动生成此包；产物 build/undersea-adventure-single.html=10,202,506字节（9.73MiB），比15,521,794字节减少34.27%。原生与备用解压离线回归通过，最终原生回归 errors=[]、external=[]，首输入前不计时不生成敌人，移动/音乐、宠物招募、Boss参数和音乐切换通过。未部署或推送，未验证实体手机加载时长。
 
 2026-10-10 Vercel Git 自动部署：现有 undersea-adventure 项目通过官方 CLI 同等关联 API 绑定 GitHub allan1in/UnderseaAdventure，productionBranch=main 已读回确认。仓库根 vercel.json 直接发布 build 中已跟踪的压缩 single HTML，首页重写到该文件，安装与构建命令留空，无需云端 Cocos；后续需要本地重新打包并提交产物才能发布游戏更新。原域名关联保留。
+
+2026-10-10 单 HTML 在线75%解压失败修复：外层 requestAnimationFrame 提前启动，流式传输尚未结束时读取 packed-game.textContent，可能读到截断 gzip。pack-gzip-html.py 在读取数据前等待 DOMContentLoaded，加载页仍提前显示。check-streamed-html.cjs 在内嵌 payload 起始8KiB后暂停传输3秒，确认未解压/进度0%，下载完成后原生及pako两路径正常就绪、errors=[]。更新已跟踪 HTML（10,202,653字节）；发布由main自动部署。

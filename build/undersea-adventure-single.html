@@ -89,6 +89,9 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;visibility:hidden}
  async function start(){window.underseaTimings={start:performance.now()};ready=false;lastProgress=0;splash.style.display='flex';
   message.textContent='正在加载海底世界…';percent.textContent='0%';bar.style.width='0%';
   try {
+   if(document.readyState==='loading'){
+    await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
+   }
    const encoded=document.getElementById('packed-game').textContent.trim();
    const bytes=new Uint8Array(encoded.length/4*3);let offset=0;
    for(let i=0;i<encoded.length;i+=262144){
