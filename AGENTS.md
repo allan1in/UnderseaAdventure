@@ -473,3 +473,5 @@ check-jellyfish-rig-source.cjs 用当前源码和导入资源注入现有 Cocos 
 2026-10-10 Vercel Git 自动部署：现有 undersea-adventure 项目通过官方 CLI 同等关联 API 绑定 GitHub allan1in/UnderseaAdventure，productionBranch=main 已读回确认。仓库根 vercel.json 直接发布 build 中已跟踪的压缩 single HTML，首页重写到该文件，安装与构建命令留空，无需云端 Cocos；后续需要本地重新打包并提交产物才能发布游戏更新。原域名关联保留。
 
 2026-10-10 单 HTML 在线75%解压失败修复：外层 requestAnimationFrame 提前启动，流式传输尚未结束时读取 packed-game.textContent，可能读到截断 gzip。pack-gzip-html.py 在读取数据前等待 DOMContentLoaded，加载页仍提前显示。check-streamed-html.cjs 在内嵌 payload 起始8KiB后暂停传输3秒，确认未解压/进度0%，下载完成后原生及pako两路径正常就绪、errors=[]。更新已跟踪 HTML（10,202,653字节）；发布由main自动部署。
+
+2026-10-10 手机0%加载优化：线上单HTML需完整下载10.2MB才能解压，手机模拟750KB/s与CPU4倍降速实际108秒就绪、前40秒0%，无错误。新增prepare-git-deployment.cjs从已跟踪单HTML抽取完整gzip，Vercel构建public/index.html=151232字节，哈希gzip=7538485字节，真实fetch流下载进度，全部下载/预加载后进入游戏；离线单HTML保留。无后续游戏资源异步下载。新入口localhost完整玩法回归通过，未验证实体小米14。

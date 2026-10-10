@@ -2,11 +2,8 @@
   "version": 2,
   "framework": null,
   "installCommand": "",
-  "buildCommand": "",
-  "outputDirectory": "build",
-  "rewrites": [
-    { "source": "/", "destination": "/undersea-adventure-single.html" }
-  ],
+  "buildCommand": "node tools/prepare-git-deployment.cjs",
+  "outputDirectory": "public",
   "headers": [
     {
       "source": "/",
