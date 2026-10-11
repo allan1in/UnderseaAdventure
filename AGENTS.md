@@ -1,5 +1,7 @@
 # 项目协作说明
 
+2026-10-11 GitHub Actions 自动部署已验证成功：用户更新 CLOUDFLARE_API_TOKEN 后，workflow_dispatch 运行 38126600199 全步骤 success，部署现有 Pages 项目/main（8f896b27-dc65-4b79-8993-b230221b3733），Cloudflare 读回 commit_hash=a3b6b2d597521f180c88d2a46bfa01b3dfc64c39。正式域名 Chrome 回归启动/移动/音频/招募进化/Boss/胜利通过，errors=[]。后续推送 main 中已打包 HTML、加载脚本或 workflow 文件会触发部署；仅源码变更不会重建游戏，需先本地重新打包并提交 HTML。使用 GitHub Actions Direct Upload，Pages 原生 source 仍为空，不应表述为 Cloudflare 原生 Git 关联已修复。
+
 2026-10-11 Git 自动部署改为官方 Direct Upload + GitHub Actions：Pages 原生 Git 创建接口在重新授权后仍返回 8000011，用 Wrangler OAuth 和 MCP 两种凭据结果一致。新增 .github/workflows/cloudflare-pages.yml，main 已打包 HTML 或加载脚本更新时生成 public 并部署现有 undersea-adventure-preview/main，保留正式域名；workflow_dispatch 支持手动运行。使用 Cloudflare Pages Edit 专用 API Token，存放 GitHub repository secret CLOUDFLARE_API_TOKEN；缺失时明确失败，不能声称自动部署已就绪。云端只转换已提交 HTML，不重新构建 Cocos。
 
 2026-10-11 当前压缩版已直接上传 Cloudflare Pages/main，正式部署 dcba4f3b-137d-41f0-83aa-99417e1eb7d9，域名 https://undersea.allan1in.top。入口 152207 字节，game-333197e7aaae.gz 为 6310693 字节（6.02 MiB），保留 gzip；包含图集缩小、关键帧精简、透明裁切重排、加载图统一显示与首次触摸音乐从头播放。正式域名 Chrome 回归启动/移动/音乐/宠物招募进化/Boss/胜利通过，errors=[]；未验证实体手机加载时间。Cloudflare 项目 API 的 source=null，GitHub 自动部署仍未关联；本轮未提交或推送 GitHub。
