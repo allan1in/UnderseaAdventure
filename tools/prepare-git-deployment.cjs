@@ -8,7 +8,9 @@ const pattern = /<script id="packed-game" type="application\/octet-stream">([A-Z
 const match = html.match(pattern);
 if (!match) throw Error('Missing complete embedded game');
 const gzip = Buffer.from(match[1], 'base64');
-const file = `game-${crypto.createHash('sha256').update(gzip).digest('hex').slice(0,12)}.gz`;
+// Bump this suffix to publish a fresh resource URL without changing game content.
+const release = '20261011-r1';
+const file = `game-${crypto.createHash('sha256').update(gzip).digest('hex').slice(0,12)}-${release}.gz`;
 html = html.replace(pattern, '');
 html = html.replace("message.textContent='正在加载海底世界…'", "message.textContent='正在下载游戏资源…'");
 // Keep the background visible while the loading artwork decodes as one group.
