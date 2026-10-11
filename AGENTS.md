@@ -1,5 +1,7 @@
 # 项目协作说明
 
+2026-10-11 当前压缩版已直接上传 Cloudflare Pages/main，正式部署 dcba4f3b-137d-41f0-83aa-99417e1eb7d9，域名 https://undersea.allan1in.top。入口 152207 字节，game-333197e7aaae.gz 为 6310693 字节（6.02 MiB），保留 gzip；包含图集缩小、关键帧精简、透明裁切重排、加载图统一显示与首次触摸音乐从头播放。正式域名 Chrome 回归启动/移动/音乐/宠物招募进化/Boss/胜利通过，errors=[]；未验证实体手机加载时间。Cloudflare 项目 API 的 source=null，GitHub 自动部署仍未关联；本轮未提交或推送 GitHub。
+
 - 不到万不得已，不要使用 computer use。
 - 仅修改 UnderseaAdventure；保留原 mushroom 项目。
 - 保留素材 .meta UUID，避免资源引用失效。
@@ -475,3 +477,8 @@ check-jellyfish-rig-source.cjs 用当前源码和导入资源注入现有 Cocos 
 2026-10-10 单 HTML 在线75%解压失败修复：外层 requestAnimationFrame 提前启动，流式传输尚未结束时读取 packed-game.textContent，可能读到截断 gzip。pack-gzip-html.py 在读取数据前等待 DOMContentLoaded，加载页仍提前显示。check-streamed-html.cjs 在内嵌 payload 起始8KiB后暂停传输3秒，确认未解压/进度0%，下载完成后原生及pako两路径正常就绪、errors=[]。更新已跟踪 HTML（10,202,653字节）；发布由main自动部署。
 
 2026-10-10 手机0%加载优化：线上单HTML需完整下载10.2MB才能解压，手机模拟750KB/s与CPU4倍降速实际108秒就绪、前40秒0%，无错误。新增prepare-git-deployment.cjs从已跟踪单HTML抽取完整gzip，Vercel构建public/index.html=151232字节，哈希gzip=7538485字节，真实fetch流下载进度，全部下载/预加载后进入游戏；离线单HTML保留。无后续游戏资源异步下载。新入口localhost完整玩法回归通过，未验证实体小米14。
+
+2026-10-10 Cloudflare试部署：按用户要求安装cloudflare/skills全部16技能到用户Codex skills，MCP cloudflare注册https://mcp.cloudflare.com/mcp并OAuth登录成功，需重启载入新MCP。Wrangler4.149.0登录118f6655f7a41bdd33442efc71b9bf88，直接上传public到undersea-adventure-preview Pages/main；部署6a1924eb，地址https://undersea-adventure-preview.pages.dev。线上check-single-html启动/移动/音乐/招募/Boss/胜利回归errors=[]。Git关联项目创建API多次返回8000011 Cloudflare Pages Git installation internal issue，Git自动部署尚未配置；现有Vercel和自定义域名未切换。
+
+2026-10-10 自定义域名切换：按用户要求将undersea.allan1in.top关联Cloudflare Pages undersea-adventure-preview；用户将原Vercel CNAME改为undersea-adventure-preview.pages.dev并开启代理。HTTPS首页返回200、Server=cloudflare、151232字节且与public/index.html一致，域名verification_data=active，validation_data暂pending。Vercel项目未删除，GitHub main到Cloudflare的自动关联仍未完成。
+2026-10-10 域名验证完成：Cloudflare status/verification/validation全部active。首次完整检查因下载超过120秒超时；随后浏览器复查下载进度持续增长至75%，System启动、预加载99%到100%、__underseaReady=true，正式域名已进入游戏。慢下载仍取决于本次网络线路，不能声称10秒达标。

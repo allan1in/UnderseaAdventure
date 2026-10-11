@@ -1,4 +1,4 @@
-import { _decorator, Animation, AnimationClip, AnimationState, Component, instantiate, Node, Prefab, Sprite, SpriteFrame, UIOpacity, UITransform, Vec4 } from 'cc';
+import { _decorator, Animation, AnimationClip, AnimationState, Component, instantiate, Node, Prefab, Sprite, SpriteFrame, UIOpacity, UITransform, Vec2, Vec4 } from 'cc';
 import { CircleBody2D } from './CircleBody2D';
 import { EnemyController } from './EnemyController';
 import { BossController } from './BossController';
@@ -31,6 +31,8 @@ export class HeroController extends Component {
 
     @property(SpriteFrame) themeSlashFrame: SpriteFrame | null = null;
     @property(Vec4) themeSlashBounds = new Vec4(0, 0, 1, 1);
+    @property({ type: Vec2, tooltip: '剑弧内容边界对应的原始画布尺寸；发布时缩图不改变显示大小' })
+    themeSlashSourceSize = new Vec2(1254, 1254);
     @property({ tooltip: '剑弧显示倍率，独立于伤害判定范围' }) themeSlashScale = 1.35;
 
     @property({ tooltip: '攻击矩形的宽度；原示例 200 按当前角色显示比例换算为 100' })
@@ -422,12 +424,14 @@ export class HeroController extends Component {
         const scale = this.node.scale;
         const facing = this.visual?.facing ?? 1;
         if (this.themeSlashFrame) {
-            const size = this.themeSlashFrame.originalSize, bounds = this.themeSlashBounds;
+            // Bounds use source-art pixels. Distribution textures may be smaller,
+            // so calculate placement from the reference canvas instead of the texture.
+            const size = this.themeSlashSourceSize, bounds = this.themeSlashBounds;
             const ui = node.getComponent(UITransform)!;
-            ui.setAnchorPoint((bounds.x + bounds.z / 2) / size.width,
-                1 - (bounds.y + bounds.w / 2) / size.height);
-            ui.setContentSize(this.attackRange * Math.max(.1, this.themeSlashScale) * size.width / Math.max(1, bounds.z),
-                this.attackHeight * Math.max(.1, this.themeSlashScale) * size.height / Math.max(1, bounds.w));
+            ui.setAnchorPoint((bounds.x + bounds.z / 2) / size.x,
+                1 - (bounds.y + bounds.w / 2) / size.y);
+            ui.setContentSize(this.attackRange * Math.max(.1, this.themeSlashScale) * size.x / Math.max(1, bounds.z),
+                this.attackHeight * Math.max(.1, this.themeSlashScale) * size.y / Math.max(1, bounds.w));
             const phase = this.attackElapsed / Math.max(.001, this.attackDuration);
             const pulse = phase <= .2 || phase >= .8 ? 0 : Math.sin((phase - .2) / .6 * Math.PI);
             node.setPosition(position.x + facing * (this.attackOffsetX + (this.visual?.idleOffsetX ?? 0)) * Math.abs(scale.x),

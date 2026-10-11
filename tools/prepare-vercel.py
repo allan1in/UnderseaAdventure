@@ -13,6 +13,9 @@ import base64
 import hashlib
 import re
 import gzip
+import math
+from spine_keyframe_reduction import reduce_skeletons
+from spine_atlas_packing import repack_atlas
 
 project = Path(__file__).resolve().parents[1]
 source = project / 'build/web-mobile'
@@ -24,14 +27,89 @@ if optimized.exists():
 shutil.copytree(source, optimized, dirs_exist_ok=True)
 destination.mkdir(parents=True, exist_ok=True)
 resize_names={}
+resize_paths = (
+    '/textures/undersea/ui/', '/textures/undersea/props/', '/textures/ground/',
+    '/gameplay/ad-ui/', '/textures/undersea/effects/hero-attack/',
+    '/textures/undersea/characters/partners/',
+)
 for meta in (project/'assets').rglob('*.png.meta'):
     path=meta.as_posix()
-    if '/textures/undersea/ui/' in path or '/textures/undersea/props/' in path or '/textures/ground/' in path or '/gameplay/ad-ui/' in path:
+    # Standalone SpriteFrames and Spine atlas pages use separate resize paths.
+    if any(prefix in path for prefix in resize_paths):
         data=json.loads(meta.read_text(encoding='utf-8-sig'))
         frame=data.get('subMetas',{}).get('f9941',{})
         if frame and frame.get('userData',{}).get('packable') is False:
             resize_names[data['uuid']]=(frame['displayName'],1536 if '/textures/ground/' in path else 512)
 frame_scales={}
+atlas_images={}
+atlas_frame_names={}
+atlas_replacements={}
+atlas_jobs=[]
+atlas_pages={}
+atlas_pixels={}
+atlas_source_sizes={}
+for atlas in (project/'assets/resources/gameplay').rglob('*.atlas'):
+    original_atlas=atlas.read_text(encoding='utf-8')
+    lines=original_atlas.splitlines()
+    factor=1
+    changed=False
+    page_files={}
+    meshes=set()
+    for skeleton_file in atlas.parent.glob('*.json'):
+        skeleton=json.loads(skeleton_file.read_text(encoding='utf-8'))
+        for skin in skeleton.get('skins',[]):
+            for attachments in skin.get('attachments',{}).values():
+                for name,attachment in attachments.items():
+                    if attachment.get('type') in ('mesh','linkedmesh'):
+                        meshes.add(attachment.get('path',name))
+    for index,line in enumerate(lines):
+        if line and not line.startswith(' ') and line.endswith('.png'):
+            page=atlas.parent/line
+            with Image.open(page) as image:
+                width,height=image.size
+            meta=json.loads(page.with_suffix('.png.meta').read_text(encoding='utf-8-sig'))
+            uuid=meta['uuid']
+            native_page=list((optimized/'assets').rglob(uuid+'.png'))
+            assert len(native_page)==1
+            page_files[line]=native_page[0]
+            atlas_pages[uuid]=meta
+            atlas_source_sizes[uuid]=(width,height)
+            # All current large rig pages are square power-of-two atlases.
+            # Keep smaller pages (Boss, jellyfish, seahorse) at native resolution.
+            if max(width,height)>512:
+                assert width==height and width%512==0, f'Unsupported atlas size: {page}'
+                factor=512/width
+                meta=json.loads(page.with_suffix('.png.meta').read_text(encoding='utf-8-sig'))
+                atlas_images[meta['uuid']]=(512,512)
+                frame=meta.get('subMetas',{}).get('f9941',{})
+                if frame:
+                    atlas_frame_names[meta['uuid']]=frame['displayName']
+                changed=True
+            else:
+                factor=1
+            continue
+        if factor==1:
+            continue
+        entry=re.match(r'^(\s*)(size|xy|orig|offset):\s*(-?\d+)\s*,\s*(-?\d+)\s*$',line)
+        if entry:
+            indent,key,x,y=entry.groups()
+            rounding=math.floor if key=='xy' else math.ceil
+            # Round sizes and orig together. Current untrimmed rig regions have
+            # zero offsets, preserving attachment dimensions even for odd sizes.
+            if key=='offset':
+                assert int(x)==0 and int(y)==0, f'Trimmed atlas needs explicit handling: {atlas}'
+            a,b=rounding(int(x)*factor),rounding(int(y)*factor)
+            lines[index]=f'{indent}{key}: {a},{b}'
+    if changed:
+        replacement='\n'.join(lines)+'\n'
+        atlas_replacements[original_atlas.strip()]=replacement
+        atlas_uuid=json.loads(atlas.with_suffix('.atlas.meta').read_text(encoding='utf-8-sig'))['uuid']
+        native_atlases=list((optimized/'assets').rglob(atlas_uuid+'.atlas'))
+        assert len(native_atlases)==1, f'Atlas missing from build: {atlas}'
+        native_atlases[0].write_text(replacement,encoding='utf-8')
+    atlas_uuid=json.loads(atlas.with_suffix('.atlas.meta').read_text(encoding='utf-8-sig'))['uuid']
+    native_atlas=list((optimized/'assets').rglob(atlas_uuid+'.atlas'))[0]
+    atlas_jobs.append((original_atlas,native_atlas,page_files,meshes))
 
 def convert(file):
     original = file.read_bytes()
@@ -39,6 +117,12 @@ def convert(file):
         rgba = image.convert('RGBA')
         if file.parent.name == 'loading':
             rgba.thumbnail((360, 360), Image.Resampling.LANCZOS)
+        elif file.stem in atlas_images:
+            original_size=rgba.size
+            rgba=rgba.resize(atlas_images[file.stem],Image.Resampling.LANCZOS)
+            if file.stem in atlas_frame_names:
+                name=atlas_frame_names[file.stem]
+                frame_scales[(name,*original_size)]=(rgba.width/original_size[0],rgba.height/original_size[1])
         elif file.stem in resize_names and max(rgba.size)>resize_names[file.stem][1]:
             name,limit=resize_names[file.stem]
             original_size=rgba.size
@@ -54,6 +138,8 @@ def convert(file):
             color.putalpha(rgba.getchannel('A'))
             rgba=color
         output = io.BytesIO()
+        if file.stem in atlas_pages:
+            atlas_pixels[file.stem]=rgba.copy()
         rgba.save(output, format='WEBP', quality=55, exact=True, method=4)
         data = output.getvalue()
         if len(data) >= len(original) and rgba.size == image.size:
@@ -71,6 +157,24 @@ with ThreadPoolExecutor(max_workers=4) as pool:
         saved += savings
         if i % 100 == 0:
             print(f'Compressed images {i}/{len(files)}; saved {saved/1048576:.1f} MiB', flush=True)
+
+packing_stats=[]
+for original,native,page_files,meshes in atlas_jobs:
+    pixels={name:atlas_pixels[file.stem] for name,file in page_files.items()}
+    text,stats=repack_atlas(native.read_text(encoding='utf-8'),page_files,pixels,meshes)
+    if not stats:continue
+    native.write_text(text,encoding='utf-8')
+    atlas_replacements[original.strip()]=text
+    for item in stats:
+        file=page_files[item['page']];meta=atlas_pages[file.stem]
+        frame=meta.get('subMetas',{}).get('f9941',{})
+        if frame:
+            width,height=atlas_source_sizes[file.stem]
+            frame_scales[(frame['displayName'],width,height)]=(item['size'][0]/width,item['size'][1]/height)
+        item['uuid']=file.stem
+    packing_stats.extend(stats)
+print('Atlas repacking: '+json.dumps(packing_stats),flush=True)
+(project/'build/verification/atlas-packing-report.json').write_text(json.dumps(packing_stats,indent=2),encoding='utf-8')
 
 def scale_frames(value):
     changed=False
@@ -94,9 +198,30 @@ def scale_frames(value):
     elif isinstance(value,list):
         for child in value:changed=scale_frames(child) or changed
     return changed
+def scale_atlas_strings(value):
+    changed=False
+    if isinstance(value,(dict,list)):
+        entries=list(value.items()) if isinstance(value,dict) else enumerate(value)
+        for key,child in entries:
+            if isinstance(child,str):
+                replacement=atlas_replacements.get(child.replace('\r\n','\n').strip())
+                if replacement is not None:
+                    value[key]=replacement
+                    changed=True
+            else:
+                changed=scale_atlas_strings(child) or changed
+    return changed
+keyframe_totals={'skeletons':0,'before':0,'after':0}
 for data_file in (optimized/'assets').rglob('*.json'):
     data=json.loads(data_file.read_text(encoding='utf-8'))
-    if scale_frames(data):data_file.write_text(json.dumps(data,separators=(',',':'),ensure_ascii=False),encoding='utf-8')
+    before_reduction=keyframe_totals['before']-keyframe_totals['after']
+    reduce_skeletons(data,keyframe_totals)
+    keyframes_changed=before_reduction!=keyframe_totals['before']-keyframe_totals['after']
+    frames_changed=scale_frames(data)
+    atlas_changed=scale_atlas_strings(data)
+    if frames_changed or atlas_changed or keyframes_changed:data_file.write_text(json.dumps(data,separators=(',',':'),ensure_ascii=False),encoding='utf-8')
+print(f'Resized {len(atlas_images)} skeleton atlas pages to 512px',flush=True)
+print('Skeleton keyframes: '+json.dumps(keyframe_totals),flush=True)
 node = sys.argv[1] if len(sys.argv) > 1 else 'node'
 ffmpeg_files=list((project/'temp/media-python/imageio_ffmpeg/binaries').glob('ffmpeg*.exe'))
 audio_saved=0

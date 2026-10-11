@@ -10,6 +10,11 @@ if (!match) throw Error('Missing complete embedded game');
 const gzip = Buffer.from(match[1], 'base64');
 const file = `game-${crypto.createHash('sha256').update(gzip).digest('hex').slice(0,12)}.gz`;
 html = html.replace(pattern, '');
+html = html.replace("message.textContent='正在加载海底世界…'", "message.textContent='正在下载游戏资源…'");
+// Keep the background visible while the loading artwork decodes as one group.
+html = html.replace('</style>', '#splash .loading-content{visibility:hidden}\n#splash.loading-art-ready .loading-content{visibility:visible}\n</style>');
+const artworkReady = fs.readFileSync(path.join(__dirname, 'loading-art-ready.js'), 'utf8');
+html = html.replace('</body>', `<script>${artworkReady}</script></body>`);
 const start = html.indexOf("   if(document.readyState==='loading'){");
 const end = html.indexOf('   let text;', start);
 if (start < 0 || end < 0) throw Error('Unexpected loader format');
