@@ -1,0 +1,47 @@
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - build/undersea-adventure-single.html
+      - tools/prepare-git-deployment.cjs
+      - tools/loading-art-ready.js
+      - .github/workflows/cloudflare-pages.yml
+  workflow_dispatch:
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare hosted gzip package
+        run: node tools/prepare-git-deployment.cjs
+      - name: Check deployment credential
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo '::error::Add the CLOUDFLARE_API_TOKEN repository secret with Account > Cloudflare Pages > Edit permission.'
+            exit 1
+          fi
+      - name: Deploy main to production
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: '118f6655f7a41bdd33442efc71b9bf88'
+          wranglerVersion: '4.149.0'
+          command: pages deploy public --project-name=undersea-adventure-preview --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
